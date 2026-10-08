@@ -27,6 +27,7 @@ PAYOUT_SENT = 3
 
 REVIEW_PERIOD_SECONDS = 7 * 24 * 60 * 60
 APPEAL_PERIOD_SECONDS = 7 * 24 * 60 * 60
+MAX_TOTAL_REVISIONS = 3
 
 MAX_TITLE_CHARS = 120
 MAX_RUBRIC_CHARS = 2000
@@ -424,6 +425,33 @@ class ClearTask(gl.contract.Contract):
         self.review_deadline = _now_seconds() + u256(REVIEW_PERIOD_SECONDS)
 
     @gl.public.write
+    def refresh_submission_after_timeout(self, submission: str, evidence: str) -> None:
+        """Let the worker refresh unresolved work after the review window expires."""
+        if self.status != STATUS_SUBMITTED or gl.message.sender_address != self.worker:
+            raise gl.vm.UserError("Only the assigned worker can refresh unresolved work")
+        if self.revision_used == u8(0):
+            raise gl.vm.UserError("Use the permitted submission revision before a timeout refresh")
+        if self.revision_used >= u8(MAX_TOTAL_REVISIONS):
+            raise gl.vm.UserError("The maximum number of submission revisions has been used")
+        if _now_seconds() <= self.review_deadline:
+            raise gl.vm.UserError("A timeout refresh is available only after the review deadline")
+        if not isinstance(submission, str) or not isinstance(evidence, str):
+            raise gl.vm.UserError("Submission and evidence must be text")
+        clean_submission = submission.strip()
+        clean_evidence = evidence.strip()
+        if not clean_submission or len(clean_submission) > MAX_SUBMISSION_CHARS:
+            raise gl.vm.UserError("Submission text is required and must be at most 4,000 characters")
+        if not clean_evidence or len(clean_evidence) > MAX_EVIDENCE_CHARS:
+            raise gl.vm.UserError("Evidence text is required and must be at most 4,000 characters")
+        self.prior_submission = self.submission
+        self.prior_evidence = self.evidence
+        self.submission = clean_submission
+        self.evidence = clean_evidence
+        self.revision_used = u8(int(self.revision_used) + 1)
+        self.submitted_at = datetime.now(timezone.utc).isoformat()
+        self.review_deadline = _now_seconds() + u256(REVIEW_PERIOD_SECONDS)
+
+    @gl.public.write
     def adjudicate(self) -> None:
         if self.status not in (STATUS_SUBMITTED, STATUS_APPEALED):
             raise gl.vm.UserError("This milestone is not awaiting adjudication")
@@ -568,3 +596,4 @@ class ClearTask(gl.contract.Contract):
             "payout_recipient": str(self.payout_recipient),
             "payout_status": _payout_label(self.payout_status),
         }, separators=(",", ":"))
+
