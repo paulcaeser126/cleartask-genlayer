@@ -234,6 +234,8 @@ def test_validator_checks_the_leader_proposal_against_untrusted_text(contract_ru
         "proposed_decision": proposed,
     }
     assert "Do not generate an alternative verdict" in prompts[0]
+    assert "Do not infer the contents of an inaccessible artifact from its citation" in prompts[0]
+    assert "return {\"valid\":false}" in prompts[0]
 
 
 def test_untrusted_text_is_json_encoded_and_labeled_unverified(contract_runtime):
@@ -249,6 +251,8 @@ def test_untrusted_text_is_json_encoded_and_labeled_unverified(contract_runtime)
         "appeal_context": "",
     }
     assert "user-controlled claims" in prompts[0]
+    assert "A file path, filename, line number, URL, transaction hash" in prompts[0]
+    assert "classify it as missing evidence" in prompts[0]
 
 
 @pytest.mark.parametrize("rubric", ["C2: Wrong ID", "C1: First | C3: Skips", "C1:   "])

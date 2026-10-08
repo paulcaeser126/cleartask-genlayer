@@ -4,7 +4,7 @@ ClearTask is a standalone GenLayer contract for a single milestone. A client def
 
 ## Checkpoint status — 2026-10-08
 
-**Not submission-ready for real funds.** The contract is deployed on Studio Next Dev and holds a 15 GEN test escrow, but two funded adjudication attempts finalized as `UNDETERMINED`. The latest validator-focused code upgrade is deployed, yet it did not resolve consensus. No verdict or payout has been recorded. The 15 GEN is still held in the test instance.
+**Not submission-ready for real funds.** The contract is deployed on Studio Next Dev and holds a 15 GEN test escrow. Two funded adjudications finalized as `UNDETERMINED`; explorer details for the latest show successful execution, three validator rejections, one acceptance, and one idle validator. The leader proposed `ACCEPT`, but no decision or payout was recorded. A prompt change now explicitly treats references to external artifacts as missing evidence unless their contents are included. That change is local and has not yet been deployed. The 15 GEN is still held in the test instance.
 
 See [docs/CHECKPOINT.md](docs/CHECKPOINT.md) for the full recorded project and transaction history, current blockers, verification record, and next work.
 

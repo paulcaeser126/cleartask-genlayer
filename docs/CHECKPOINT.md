@@ -13,7 +13,7 @@ The source is pinned to the exact Studio-compatible runner:
 
 `py-genlayer:5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng`
 
-The latest source uses `gl.vm.run_nondet_default` and a validator function that evaluates whether the leader's specific proposal is defensible and returns a boolean. It fails closed for malformed/error responses. This narrowed the validator response format; it did not yet establish consensus in the live adjudication test.
+The deployed source uses `gl.vm.run_nondet_default` and a validator function that evaluates whether the leader's specific proposal is defensible and returns a boolean. It fails closed for malformed/error responses. This narrowed the validator response format; it did not establish consensus in the live adjudication test. A local prompt update now states explicitly that URLs, file paths, line numbers, transaction hashes, and test/deployment claims are references rather than proof unless the relevant content is reproduced. The update has passed mocked unit tests and AST lint, but has not been deployed.
 
 ## Deployed test instance and state
 
@@ -41,7 +41,7 @@ Transaction status is taken from Studio transaction history and/or the Studio De
 | Validator code upgrade | [`0x3ebcd693ea9ae3e0be9cc1f63e8b186164bef2697c6c106f844e4e71c8c4a74d`](https://explorer-studio-dev.genlayer.com/tx/0x3ebcd693ea9ae3e0be9cc1f63e8b186164bef2697c6c106f844e4e71c8c4a74d) | Upgrade submitted earlier in the iteration; Studio history later showed this row as pending. Treat finality as needing explorer confirmation before relying on it. |
 | First funded adjudication | [`0xef9d9d797bfb2058cb8e5ab70e4ceafd750bfef974ea7ef4cfc3158e4ed2ea7a`](https://explorer-studio-dev.genlayer.com/tx/0xef9d9d797bfb2058cb8e5ab70e4ceafd750bfef974ea7ef4cfc3158e4ed2ea7a) | Finalized `UNDETERMINED`. Leader proposed ACCEPT; two validators agreed and three disagreed. No decision committed. |
 | Latest proposal-focused validator upgrade | [`0x3b73962bc83e9526f33e00e906c3085fe2c3ee759da8f230d1e68fa041338e0d`](https://explorer-studio-dev.genlayer.com/tx/0x3b73962bc83e9526f33e00e906c3085fe2c3ee759da8f230d1e68fa041338e0d) | Explorer confirms `FINALIZED Upgrade`, normal execution, to the current instance. |
-| Second funded adjudication after that upgrade | [`0xd72951ba12ef324a845b3c45f7d0c2b9b237b7318e76c76887b19dd16819dae0`](https://explorer-studio-dev.genlayer.com/tx/0xd72951ba12ef324a845b3c45f7d0c2b9b237b7318e76c76887b19dd16819dae0) | Studio shows `UNDETERMINED` and “Failed to reach consensus.” No verdict committed; escrow remains held. |
+| Second funded adjudication after that upgrade | [`0xd72951ba12ef324a845b3c45f7d0c2b9b237b7318e76c76887b19dd16819dae0`](https://explorer-studio-dev.genlayer.com/tx/0xd72951ba12ef324a845b3c45f7d0c2b9b237b7318e76c76887b19dd16819dae0) | Explorer consensus tab shows `UNDETERMINED`, leader proposed `ACCEPT`, three validator votes disagreed, one agreed, and one validator was idle. GenVM execution was `SUCCESS` with empty stdout/stderr; this is semantic validator disagreement, not a contract runtime exception. No verdict committed; escrow remains held. |
 
 Older historical addresses and transactions from the initial prototype are intentionally not treated as evidence for the current storage layout or payout path. See the build specification for the historical context.
 
@@ -58,21 +58,19 @@ Older historical addresses and transactions from the initial prototype are inten
 ## Current blockers and risks
 
 1. **Consensus:** Two funded adjudications have finalized `UNDETERMINED`, including one after the proposal-focused boolean validator upgrade. Repeating the same call without diagnosing why validators disagree is not a useful verification plan and incurs fees.
-2. **Diagnostics:** Capture the latest transaction's per-validator execution/output and validator logs. The Studio summary currently establishes disagreement but does not explain which criteria or proposal property caused it.
-3. **Milestone evidence quality:** The submitted evidence is a long self-referential description of source files, transaction history, and test claims. Validators may reach different conclusions about whether prose alone substantiates the criteria. Replace it with concise, explicit, criterion-by-criterion evidence before attempting another review.
-4. **One revision is already consumed:** The assigned worker's sole revision finalized. Any different evidence may require a new test instance or a deliberate code-supported resubmission design; do not assume a second revision is available.
-5. **Escrow safety:** The 15 GEN stays `HELD` while no decision is recorded. Do not call payout/finalize methods until the state and timing guards show they are valid.
-6. **Native transfer behavior:** Studio Dev lacks the EVM layer / ghost contracts needed to validate external GEN transfers. The payout child message and failure/recovery behavior are unverified. This test deployment is not suitable for production funds.
-7. **SDK validation:** Local SDK validation is blocked by runner cache access; resolve that environment issue or use a supported Studio validation path.
+2. **Evidence and diagnostics:** The latest validator votes are now visible, but the explorer does not expose a human-readable reason from each boolean validator result. The submitted evidence is a long self-referential description of source files, transaction history, and test claims rather than the source excerpts or test output themselves. It also claims 25 tests and a successful Python compile, while this checkpoint recorded 27 tests and the current Python compile could not be rerun. The contract does not fetch those artifacts. A local prompt patch now directs the model to classify referenced-but-unreproduced artifacts as missing evidence.
+3. **One revision is already consumed:** The assigned worker's sole revision finalized. Any different evidence may require a new test instance or a deliberate code-supported resubmission design; do not assume a second revision is available.
+4. **Escrow safety:** The 15 GEN stays `HELD` while no decision is recorded. Do not call payout/finalize methods until the state and timing guards show they are valid.
+5. **Native transfer behavior:** Studio Dev lacks the EVM layer / ghost contracts needed to validate external GEN transfers. The payout child message and failure/recovery behavior are unverified. This test deployment is not suitable for production funds.
+6. **SDK validation:** Local SDK validation is blocked by runner cache access; resolve that environment issue or use a supported Studio validation path.
 
 ## Recommended next work
 
-1. Inspect the consensus details for transaction `0xd729...` and collect the exact validator outputs/errors, not just the final `UNDETERMINED` label.
-2. Compare leader and validator prompt inputs and confirm that all validators see the same immutable title, rubric, submission, evidence, revision number, and proposed structured result.
-3. Rework the validator response format/prompt around an objective, compact check with a clear reason for disagreement. Add tests for prompt bounds, malformed proposals, and output parsing, then run lint and unit tests.
-4. Prepare a fresh milestone instance with short, observable criteria and concise evidence in a C1–C5 mapping. Preserve the current instance as a held-escrow test and document a safe resolution plan before changing its state.
-5. Re-run one full-consensus adjudication only after the code and evidence changes are concrete. Check the explorer result and `get_state()` before any appeal, settlement, or payout.
-6. Before any production deployment, validate native GEN payout and failed-child handling on a persistent network and obtain independent contract review.
+1. Deploy the local prompt patch through Studio's code upgrade flow, then verify the upgrade transaction finalized.
+2. Re-run one full-consensus adjudication on the unchanged evidence. With references treated as claims rather than proof, the expected honest result is `INDETERMINATE`, which should allow the worker to use the still-unused application appeal to supply actual excerpts and test output. Verify the explorer result and `get_state()` before any follow-up transaction.
+3. The current contract state has already consumed the one worker revision. If an INDETERMINATE decision is recorded, only the worker address can appeal; the client account cannot submit that appeal.
+4. For the next instance, keep criteria short and observable and include the actual evidence text. Do not claim that links, source paths, transaction hashes, or test summaries were independently checked.
+5. Before any production deployment, validate native GEN payout and failed-child handling on a persistent network and obtain independent contract review.
 
 ## Key files
 
