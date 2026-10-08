@@ -6,7 +6,7 @@ Release candidate: ClearTask 2.0, Studio-tested source with native GEN escrow, r
 
 ## Product contract
 
-One instance represents one milestone. The client deploys immutable title and rubric, funds the instance with GEN, and assigns the first non-client worker who submits. Validators independently evaluate the same fixed rubric and submitted text. The contract stores the accepted structured decision and routes the full deposit to the worker on ACCEPT or back to the client on REJECT or INDETERMINATE after the challenge period. The app has one evidence-bearing appeal and one worker revision.
+One instance represents one milestone. The client deploys immutable title and rubric, funds the instance with GEN, and assigns the first non-client worker who submits. Validators independently evaluate the same fixed rubric and submitted text. The contract stores the accepted structured decision and routes the full deposit to the worker on ACCEPT or back to the client on REJECT or INDETERMINATE after the challenge period. The app has one evidence-bearing appeal, one normal worker revision, and up to two worker refreshes after an unresolved review deadline.
 
 ## Runtime and target
 
@@ -23,14 +23,15 @@ One instance represents one milestone. The client deploys immutable title and ru
 | `OPEN` | `fund_escrow()` | Client deposits one positive payable amount; stored in wei. |
 | `OPEN` | `submit_work(submission, evidence)` | Non-client submits only after funding; sender becomes worker. |
 | `OPEN` | `cancel()` | Client may cancel before work; funded escrow becomes client-claimable. |
-| `SUBMITTED` | `revise_submission(...)` | Worker may revise once; previous work/evidence remain in public state. |
+| `SUBMITTED` | `revise_submission(...)` | Worker may make one ordinary revision; previous work/evidence remain in public state. |
+| `SUBMITTED` | `refresh_submission_after_timeout(...)` | Worker may refresh unresolved work up to two times after the seven-day review deadline; each refresh restarts the review window. |
 | `SUBMITTED` | `adjudicate()` | Client during the seven-day review period; anyone after it. |
 | `DECIDED` | `appeal(reason, additional_evidence)` | Once within seven days: client for ACCEPT; worker for REJECT or INDETERMINATE. |
 | `APPEALED` | `adjudicate()` | Either milestone party during the seven-day appeal-review period; anyone afterward. |
 | `DECIDED` | `finalize_decision()` | Anyone after the appeal period; sets the fixed beneficiary and makes full escrow claimable. |
 | `SETTLED` or `CANCELLED` | `claim_payout()` | Fixed beneficiary only; emits a finalized external GEN transfer and marks the message sent. |
 
-No rubric edits, multiple workers, more than one submission revision, or more than one application appeal are supported. If nondeterministic consensus fails, the write does not commit and the adjudication may be retried.
+No rubric edits, multiple workers, more than one application appeal, or unbounded resubmission are supported. If nondeterministic consensus fails, the write does not commit. While state remains `SUBMITTED`, the worker has up to two time-gated refreshes after the review deadline to add evidence; each restarts the review window. A third timeout failure still requires a new instance or a separately reviewed recovery design.
 
 ## Decision, score, and grade
 
@@ -55,16 +56,17 @@ The contract judges only bounded user-submitted text. It does not fetch URLs or 
 
 - View: `get_state() -> str` exposes task terms, client/worker, all lifecycle state, current and initial grade/verdict, criterion arrays, timestamps/deadlines, escrow amount in wei, recipient, and payout status.
 - Payable write: `fund_escrow() -> None`.
-- Writes: `cancel()`, `submit_work(str, str)`, `revise_submission(str, str)`, `adjudicate()`, `appeal(str, str)`, `finalize_decision()`, `claim_payout()`.
+- Writes: `cancel()`, `submit_work(str, str)`, `revise_submission(str, str)`, `refresh_submission_after_timeout(str, str)`, `adjudicate()`, `appeal(str, str)`, `finalize_decision()`, `claim_payout()`.
 
 ## Verification record and limits
 
 - Static GenVM lint: passed (3 checks).
-- Local mocked unit tests: 27 passed. Coverage includes the verdict partition, proposal validation and malformed validator responses, failed provider and disagreement paths, client/worker roles, escrow gating, one revision, one appeal, score/grade derivation, payout recipient guards, and cancellation refund logic. The suite does not execute GenVM consensus or native transfer children.
+- Local mocked unit tests: 28 passed after the timeout-refresh change. Coverage includes the verdict partition, proposal validation and malformed validator responses, failed provider and disagreement paths, client/worker roles, escrow gating, bounded revisions and timeout refreshes, one appeal, score/grade derivation, payout recipient guards, and cancellation refund logic. The suite does not execute GenVM consensus or native transfer children.
 - Local GenVM SDK validation cannot read the cached RC7 runner artifact (`WinError 5`). A later on-chain upgrade `0x3ebcd693ea9ae3e0be9cc1f63e8b186164bef2697c6c106f844e4e71c8c4a74d` finalized. Its funded adjudication attempt `0xef9d9d797bfb2058cb8e5ab70e4ceafd750bfef974ea7ef4cfc3158e4ed2ea7a` finalized `UNDETERMINED`: the leader proposed ACCEPT, two validators agreed, and three disagreed. The contract remained `SUBMITTED` with 15 GEN held. The latest adjudication `0xd72951ba12ef324a845b3c45f7d0c2b9b237b7318e76c76887b19dd16819dae0` also finalized `UNDETERMINED`; the explorer shows three validator rejections, one acceptance, and one idle validator with successful GenVM execution. The local prompt now addresses references being mistaken for evidence; its AST lint and 27 mocked unit tests pass, but the SDK semantic validator is blocked by the same Windows cache permission error and the patch is not deployed.
 - Studio deployment: accepted and finalized, contract address `0xDba641391485A7697E22ef794F488e256c3f3DA6`; no escrow value deposited. A full-consensus `submit_work` call with zero escrow left the state `OPEN` and recorded no worker or submission. A `0.001 GEN` payable UI test failed before submission because Studio attempted to convert the fractional amount to `BigInt`. Faucet requests for 1 and 10 simulated GEN produced no visible balance change; the wallet remained at `0.1 GEN`. The deployment validates ABI, constructor parsing, and the zero-escrow gate; it does not validate funded adjudication, appeal consensus, or external payout.
 - The earlier 19-case suite, source, and transactions for the first contract remain documented in the previous Studio/dev history; they do not validate this new storage model.
 
 ## Status update — 2026-10-08
 
-This update supersedes older deployment, funding, and adjudication status statements above. The active instance `0xDba641391485A7697E22ef794F488e256c3f3DA6` remains `SUBMITTED` with 15 GEN held. The latest proposal-focused validator upgrade finalized at `0x3b73962bc83e9526f33e00e906c3085fe2c3ee759da8f230d1e68fa041338e0d`, but the subsequent funded adjudication `0xd72951ba12ef324a845b3c45f7d0c2b9b237b7318e76c76887b19dd16819dae0` finalized `UNDETERMINED`. The leader proposed ACCEPT; three validators disagreed, one agreed, and one was idle. The transaction executed successfully, so the observed failure is semantic disagreement. The milestone evidence mostly referenced external files and test/transaction claims without reproducing them. The local prompt now directs validators to treat those references as missing evidence; this patch is not yet deployed. No verdict or payout was recorded, so the contract is not submission-ready for real funds. See [`../docs/CHECKPOINT.md`](../docs/CHECKPOINT.md) for the transaction record, limits, and next steps.
+This update supersedes older deployment, funding, and adjudication status statements above. The active instance `0xDba641391485A7697E22ef794F488e256c3f3DA6` remains `SUBMITTED` with 15 GEN held. The evidence-reference prompt upgrade `0x9e7ab9d27bd135d7240a7baae640a3746bf6a60a92dfec24524c2c23b7ae13b0` finalized; however, the subsequent funded adjudication `0xe06e79d6f6ab8dfc57c84a3fcaed1f1dc9fcf04ed825de5f559a779b0f626874` finalized `UNDETERMINED`. The explorer output proposed INDETERMINATE with all five criteria missing; three validators disagreed, one agreed, and one was idle. No decision or payout was recorded. A bounded, time-gated worker refresh is now implemented locally to recover a still-unresolved submission after its review deadline, but it is not deployed. The build remains a Studio Dev test and is not submission-ready for real funds. See [`../docs/CHECKPOINT.md`](../docs/CHECKPOINT.md) for the full transaction record, limits, and next steps.
+
