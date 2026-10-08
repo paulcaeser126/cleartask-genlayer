@@ -312,6 +312,32 @@ def test_revision_is_limited_and_preserves_previous_submission(contract_runtime)
     assert state["revision_used"] == 1
 
 
+def test_timeout_refresh_recovers_unresolved_submission_with_a_hard_limit(contract_runtime):
+    contract, gl, _, _, _ = funded_contract(contract_runtime)
+    gl.message.sender_address = "worker"
+    contract.submit_work("work v1", "evidence v1")
+    contract.revise_submission("work v2", "evidence v2")
+
+    with pytest.raises(FakeUserError, match="only after the review deadline"):
+        contract.refresh_submission_after_timeout("work v3", "evidence v3")
+
+    contract.review_deadline = 0
+    contract.refresh_submission_after_timeout("work v3", "evidence v3")
+    state = read_state(contract)
+    assert state["status"] == "SUBMITTED"
+    assert state["prior_submission"] == "work v2"
+    assert state["submission"] == "work v3"
+    assert state["revision_used"] == 2
+
+    contract.review_deadline = 0
+    contract.refresh_submission_after_timeout("work v4", "evidence v4")
+    assert read_state(contract)["revision_used"] == 3
+
+    contract.review_deadline = 0
+    with pytest.raises(FakeUserError, match="maximum number of submission revisions"):
+        contract.refresh_submission_after_timeout("work v5", "evidence v5")
+
+
 def test_appeal_can_reopen_once_and_preserves_first_grade(contract_runtime):
     contract, gl, responses, _, _ = submitted_contract(contract_runtime)
     responses.extend([
@@ -379,3 +405,4 @@ def test_worker_cannot_cancel_open_milestone(contract_runtime):
     gl.message.sender_address = "worker"
     with pytest.raises(FakeUserError, match="Only the client"):
         contract.cancel()
+
