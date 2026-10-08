@@ -5,6 +5,15 @@
 **Environment:** GenLayer Studio Next Dev, build `v0.123.0-rc.7`, chain ID `61997`  
 **Status:** Deployed and funded for testing; adjudication consensus remains unresolved. Not ready for production funds or final submission.
 
+## Latest checkpoint — 2026-10-09
+
+This section supersedes older status statements below where they conflict. The bounded `refresh_submission_after_timeout` recovery method was upgraded to the active instance and finalized in transaction [`0x174a1a638e861ac807ffc90410f755a0b45b2b15a7a0684232eb34da0ec1b918`](https://explorer-studio-dev.genlayer.com/tx/0x174a1a638e861ac807ffc90410f755a0b45b2b15a7a0684232eb34da0ec1b918). It does not resolve the prior `UNDETERMINED` adjudications or release the original 15 GEN escrow; the original instance remains `SUBMITTED` with funds held.
+
+A separate short-window demo source, `outputs/ClearTask-SameDay-Demo.py`, sets both review and appeal windows to 15 minutes and preserves the pinned Studio RC7 runner. Local verification: 60 mocked guard tests pass across both source variants; GenVM lint passes for both. The demo source is staged in Studio Next and its constructor schema is recognized. A fresh instance has **not** been deployed or funded. A new deposit is separate from the old locked 15 GEN.
+
+The Studio milestone form is prepared as `ClearTask 15-Minute Escrow Demo` with five acceptance criteria. The user must submit deployment and funding transactions through Rabby. This short-window profile is for a controlled Studio Dev demonstration only. Live consensus, payout/refund transfers, and recovery after a real timeout remain unverified; it is not ready for production funds.
+
+
 ## What the contract is intended to do
 
 Each instance represents one milestone with a fixed title and one to eight observable criteria. A client funds the instance in GEN; a different address submits work and evidence; the contract asks GenLayer validators to assess the submission; and a structured verdict records criterion coverage, a deterministic score and grade, and a fixed payout beneficiary. The lifecycle supports one worker revision, one evidence-bearing appeal, cancellation before work submission, delayed settlement, and a fixed-recipient claim.
@@ -53,7 +62,7 @@ Older historical addresses and transactions from the initial prototype are inten
 ## Verification completed
 
 - `genvm-lint lint outputs/ClearTask.py --json`: passed, 3 checks.
-- `pytest tests/unit/test_cleartask_guards.py -q`: 29 passed, including bounded timeout-refresh caller, timing, and lifecycle guards. These are mocked-boundary tests; they do not simulate live validator consensus or native value transfers.
+- `pytest tests/unit/test_cleartask_guards.py -q`: 60 passed across standard and short-window sources, including bounded timeout-refresh, timing, and lifecycle guards. These are mocked-boundary tests; they do not simulate live validator consensus or native value transfers.
 - Contract deployment and code upgrades were accepted/finalized in Studio Dev. The prompt upgrade `0x9e7ab9d…` and bounded recovery upgrade `0x174a1a63…` finalized. The follow-up adjudication `0xe06e79d…` finalized as a transaction but with `UNDETERMINED` consensus and no state write.
 - Studio accepted the ABI and state view; zero-escrow guard behavior was tested in an earlier run.
 - Local GenVM SDK validation remains blocked because the extracted RC7 cache does not contain the source's pinned runner hash and the linter returns `WinError 5` even after read access was granted.
