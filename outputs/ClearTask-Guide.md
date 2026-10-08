@@ -44,7 +44,7 @@ One permitted appeal changes `DECIDED → APPEALED → DECIDED`. A client can ca
 ## Local verification
 
 - `genvm-lint lint outputs/ClearTask.py`: passed (3 checks).
-- `pytest tests/unit/test_cleartask_guards.py -q`: 27 passed. These tests mock GenVM and external messages; they do not prove native consensus or transfer behavior.
+- `pytest tests/unit/test_cleartask_guards.py -q`: 28 passed, including bounded timeout-refresh guards. These tests mock GenVM and external messages; they do not prove native consensus or transfer behavior.
 - Studio Next Dev: fresh contract deployment finalized with accepted consensus. Its ABI exposes the payable funding method and the expected lifecycle methods. No value was deposited in the preview instance; the Studio amount widget blocked fractional-GEN funding before transaction submission.
 
 ## Current checkpoint — 2026-10-08
