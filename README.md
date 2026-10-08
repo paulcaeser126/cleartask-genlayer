@@ -4,7 +4,7 @@ ClearTask is a standalone GenLayer contract for a single milestone. A client def
 
 ## Checkpoint status — 2026-10-08
 
-**Not submission-ready for real funds.** The contract is deployed on Studio Next Dev and holds a 15 GEN test escrow. Three funded adjudications finalized `UNDETERMINED`. The latest used the deployed evidence-reference prompt and proposed `INDETERMINATE` with all five criteria missing, but validators disagreed, so state did not change; the finalized state still reports `SUBMITTED`, blank verdict, and 15 GEN `HELD`. A bounded worker recovery method is prepared in the repository and passes 28 mocked tests plus static lint, but it is not deployed. The latest execution fee was 0.000079 GEN.
+**Not submission-ready for real funds.** The contract is deployed on Studio Next Dev and holds a 15 GEN test escrow. Three funded adjudications finalized `UNDETERMINED`. The latest used the deployed evidence-reference prompt and proposed `INDETERMINATE` with all five criteria missing, but validators disagreed, so state did not change; the finalized state still reports `SUBMITTED`, blank verdict, and 15 GEN `HELD`. A bounded worker recovery method is prepared in the repository and passes 29 mocked tests plus static lint, but it is not deployed. The latest execution fee was 0.000079 GEN.
 
 See [docs/CHECKPOINT.md](docs/CHECKPOINT.md) for the full recorded project and transaction history, current blockers, verification record, and next work.
 
@@ -22,3 +22,4 @@ See [docs/CHECKPOINT.md](docs/CHECKPOINT.md) for the full recorded project and t
 - Test instance: [`0xDba641391485A7697E22ef794F488e256c3f3DA6`](https://explorer-studio-dev.genlayer.com/address/0xDba641391485A7697E22ef794F488e256c3f3DA6).
 
 This is a Studio Dev test instance. Do not use real or production funds until consensus, native payout behavior, child-transfer failure handling, and security review are complete.
+
