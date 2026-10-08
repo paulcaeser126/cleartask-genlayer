@@ -47,7 +47,7 @@ One permitted appeal changes `DECIDED → APPEALED → DECIDED`. A client can ca
 - `pytest tests/unit/test_cleartask_guards.py -q`: 29 passed, including bounded timeout-refresh guards. These tests mock GenVM and external messages; they do not prove native consensus or transfer behavior.
 - Studio Next Dev: fresh contract deployment finalized with accepted consensus. Its ABI exposes the payable funding method and the expected lifecycle methods. No value was deposited in the preview instance; the Studio amount widget blocked fractional-GEN funding before transaction submission.
 
-## Current checkpoint — 2026-10-08
+## Current checkpoint — 2026-10-09
 
 This update supersedes older release and funding statements above. The current Studio Dev instance is `0xDba641391485A7697E22ef794F488e256c3f3DA6`, with `SUBMITTED` status and 15 GEN held. The evidence-reference prompt upgrade `0x9e7ab9d27bd135d7240a7baae640a3746bf6a60a92dfec24524c2c23b7ae13b0` finalized. Latest adjudication `0xe06e79d6f6ab8dfc57c84a3fcaed1f1dc9fcf04ed825de5f559a779b0f626874` finalized `UNDETERMINED`; its output proposed `INDETERMINATE` with all five criteria missing evidence, but validators disagreed, so state did not change. The deployed source now includes a bounded, time-gated worker refresh for unresolved submissions; upgrade `0x174a1a638e861ac807ffc90410f755a0b45b2b15a7a0684232eb34da0ec1b918` finalized. The worker may call it after the review deadline. The application appeal cannot be used until a verdict is recorded. This contract is not ready for production funds. See [`../docs/CHECKPOINT.md`](../docs/CHECKPOINT.md) for the full transaction history, blockers, and next work.
 
