@@ -4,16 +4,18 @@ ClearTask is a standalone GenLayer contract for a single milestone. A client def
 
 ## Checkpoint status — 2026-10-09
 
-**Not submission-ready for real funds.** The contract is deployed on Studio Next Dev and holds a 15 GEN test escrow. Three funded adjudications finalized `UNDETERMINED`. The latest used the deployed evidence-reference prompt and proposed `INDETERMINATE` with all five criteria missing, but validators disagreed, so state did not change; the finalized state still reports `SUBMITTED`, blank verdict, and 15 GEN `HELD`. A bounded worker recovery method passed 29 mocked tests plus static lint and was deployed in finalized code upgrade [`0x174a1a638e861ac807ffc90410f755a0b45b2b15a7a0684232eb34da0ec1b918`](https://explorer-studio-next.genlayer.com/tx/0x174a1a638e861ac807ffc90410f755a0b45b2b15a7a0684232eb34da0ec1b918). It can be used after the review deadline, but live consensus and payout remain unvalidated. The latest execution fee was 0.000079 GEN.
+**Not ready for production funds or a claim of successful adjudication.** The original Studio Dev instance `0xDba641391485A7697E22ef794F488e256c3f3DA6` still holds 15 GEN in `SUBMITTED`; funded adjudications finalized `UNDETERMINED`. The bounded worker recovery method is now finalized in an upgrade to that instance, but it has not resolved validator disagreement or settled the old escrow.
+
+A separate `outputs/ClearTask-SameDay-Demo.py` uses 15-minute review and appeal windows. Its source passes the local guard suite and GenVM lint, and Studio Next recognizes its constructor. The file and milestone inputs are staged in Studio, but **the fresh instance has not been deployed or funded**. The old escrow remains separate. Live consensus and native payout behavior remain unverified; use this profile only for a controlled Studio Dev demonstration.
 
 See [docs/CHECKPOINT.md](docs/CHECKPOINT.md) for the full recorded project and transaction history, current blockers, verification record, and next work.
 
 ## Repository contents
 
-- `outputs/ClearTask.py` — GenLayer-native contract source, pinned to the Studio Dev runner.
+- `outputs/ClearTask.py` — GenLayer-native contract source, pinned to the Studio Dev runner.\n- `outputs/ClearTask-SameDay-Demo.py` — separate 15-minute Studio Dev demonstration profile; not deployed.
 - `outputs/ClearTask-Guide.md` — operator and lifecycle guide.
 - `outputs/ClearTask-Studio-Build-Spec.md` — implementation and compatibility specification.
-- `tests/unit/test_cleartask_guards.py` — mocked-boundary unit tests.
+- `tests/unit/test_cleartask_guards.py` — mocked-boundary unit tests.\n\nLatest local verification: 60 mocked guard tests pass across both source variants; GenVM lint passes for both. These checks do not prove validator consensus or native GEN payout behavior.
 
 ## Target environment
 
