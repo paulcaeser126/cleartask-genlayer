@@ -2,7 +2,7 @@
 
 ClearTask is a standalone GenLayer contract for a single milestone. A client defines a fixed rubric and funds GEN escrow; a worker submits text and evidence; GenLayer validators review the submission; and the contract tracks a verdict, score, grade, appeal, settlement, and payout claim.
 
-## Checkpoint status — 2026-10-08
+## Checkpoint status — 2026-10-09
 
 **Not submission-ready for real funds.** The contract is deployed on Studio Next Dev and holds a 15 GEN test escrow. Three funded adjudications finalized `UNDETERMINED`. The latest used the deployed evidence-reference prompt and proposed `INDETERMINATE` with all five criteria missing, but validators disagreed, so state did not change; the finalized state still reports `SUBMITTED`, blank verdict, and 15 GEN `HELD`. A bounded worker recovery method passed 29 mocked tests plus static lint and was deployed in finalized code upgrade [`0x174a1a638e861ac807ffc90410f755a0b45b2b15a7a0684232eb34da0ec1b918`](https://explorer-studio-next.genlayer.com/tx/0x174a1a638e861ac807ffc90410f755a0b45b2b15a7a0684232eb34da0ec1b918). It can be used after the review deadline, but live consensus and payout remain unvalidated. The latest execution fee was 0.000079 GEN.
 
