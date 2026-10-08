@@ -15,6 +15,8 @@ The source is pinned to the exact Studio-compatible runner:
 
 The deployed source uses `gl.vm.run_nondet_default` and a validator function that evaluates whether the leader's specific proposal is defensible and returns a boolean. The review prompt also treats URLs, file paths, line numbers, transaction hashes, and test/deployment claims as references rather than proof unless the relevant content is reproduced. This version was deployed in the finalized code upgrade `0x9e7ab9d27bd135d7240a7baae640a3746bf6a60a92dfec24524c2c23b7ae13b0`. The following funded adjudication still ended `UNDETERMINED`; therefore the prompt change did not resolve live consensus.
 
+The repository now contains a pending recovery patch: `refresh_submission_after_timeout(submission, evidence)` lets the assigned worker refresh a still-`SUBMITTED` milestone after its seven-day review deadline, with a hard cap of three total revisions (the ordinary revision plus two timeout refreshes). Each refresh preserves the immediately prior submission/evidence and restarts the review window. It adds no storage field and does not change verdict or payout rules. The patch passed 28 mocked unit tests and three static GenVM lint checks. SDK semantic validation remains blocked by Windows `WinError 5` reading the pinned runner cache. This method is not deployed to the current Studio instance.
+
 ## Deployed test instance and state
 
 - Instance: [`0xDba641391485A7697E22ef794F488e256c3f3DA6`](https://explorer-studio-dev.genlayer.com/address/0xDba641391485A7697E22ef794F488e256c3f3DA6)
@@ -50,7 +52,7 @@ Older historical addresses and transactions from the initial prototype are inten
 ## Verification completed
 
 - `genvm-lint lint outputs/ClearTask.py --json`: passed, 3 checks.
-- `pytest tests/unit/test_cleartask_guards.py -q`: 27 passed. These are mocked-boundary tests; they do not simulate live validator consensus or execute native value transfers.
+- `pytest tests/unit/test_cleartask_guards.py -q`: 28 passed, including the bounded timeout-refresh guard. These are mocked-boundary tests; they do not simulate live validator consensus or native value transfers. These are mocked-boundary tests; they do not simulate live validator consensus or execute native value transfers.
 - Contract deployment and code upgrades were accepted/finalized in Studio Dev. The prompt upgrade `0x9e7ab9d…` finalized; its follow-up adjudication `0xe06e79d…` finalized as a transaction but with `UNDETERMINED` consensus and no state write.
 - Studio accepted the ABI and state view; zero-escrow guard behavior was tested in an earlier run.
 - Local GenVM SDK validation was blocked because Windows returned `WinError 5` reading the cached RC7 SDK artifact.
@@ -61,7 +63,7 @@ Older historical addresses and transactions from the initial prototype are inten
 
 1. **Consensus:** Three funded adjudications have finalized `UNDETERMINED`, including one after the evidence-reference prompt upgrade. The latest proposed `INDETERMINATE` with all five criteria missing, but validator disagreement prevented the write. GenLayer docs state an undetermined transaction does not modify contract state. Repeating the unchanged call would incur another fee without addressing validator disagreement.
 2. **Evidence and diagnostics:** The latest validator votes are visible, but the explorer does not expose each boolean validator's reasoning. The submission contains references to sources, transactions, and tests rather than the underlying excerpts/results. The deployed prompt correctly makes these missing evidence; however, validators still disagreed on that proposal. No outside artifacts are fetched by the contract.
-3. **One revision is already consumed:** The assigned worker's sole revision finalized. Any different evidence may require a new test instance or a deliberate code-supported resubmission design; do not assume a second revision is available.
+3. **Recovery upgrade is pending:** The worker's ordinary revision is already consumed on the deployed contract. A source patch now provides up to two time-gated refreshes after the review deadline, but the current instance does not expose that method until a code upgrade is finalized. The upgrade is not yet deployed.
 4. **Escrow safety:** The 15 GEN stays `HELD` while no decision is recorded. Do not call payout/finalize methods until the state and timing guards show they are valid.
 5. **Native transfer behavior:** Studio Dev lacks the EVM layer / ghost contracts needed to validate external GEN transfers. The payout child message and failure/recovery behavior are unverified. This test deployment is not suitable for production funds.
 6. **SDK validation:** Local SDK validation is blocked by runner cache access; resolve that environment issue or use a supported Studio validation path.
@@ -69,7 +71,7 @@ Older historical addresses and transactions from the initial prototype are inten
 ## Recommended next work
 
 1. Do not repeat adjudication against the unchanged evidence. First diagnose validator disagreements with a minimal, reproducible test case and expose stable diagnostics where the supported GenLayer API allows it.
-2. The latest decision did not commit, so the application appeal path is not open. The worker's sole revision is already consumed. A new instance with actual evidence, or a carefully reviewed upgrade that restores a safe worker resubmission path, is needed to continue the live milestone; do not claim the existing instance is complete.
+2. The latest decision did not commit, so the application appeal path is not open. The worker's ordinary revision is already consumed. The repository has a tested but not deployed recovery patch; review and deploy it before the worker uses `refresh_submission_after_timeout(...)` after the existing review deadline. Provide actual source excerpts/test output as evidence, not only links and hashes.
 3. Once a decision is actually recorded, verify `get_state()` at `Finalized` before attempting an appeal, settlement, or payout.
 4. For the next instance, keep criteria short and observable and include the actual evidence text. Do not claim that links, source paths, transaction hashes, or test summaries were independently checked.
 5. Before any production deployment, validate native GEN payout and failed-child handling on a persistent network and obtain independent contract review.
