@@ -15,7 +15,7 @@ The source is pinned to the exact Studio-compatible runner:
 
 The deployed source uses `gl.vm.run_nondet_default` and a validator function that evaluates whether the leader's specific proposal is defensible and returns a boolean. The review prompt also treats URLs, file paths, line numbers, transaction hashes, and test/deployment claims as references rather than proof unless the relevant content is reproduced. This version was deployed in the finalized code upgrade `0x9e7ab9d27bd135d7240a7baae640a3746bf6a60a92dfec24524c2c23b7ae13b0`. The following funded adjudication still ended `UNDETERMINED`; therefore the prompt change did not resolve live consensus.
 
-The repository now contains a pending recovery patch: `refresh_submission_after_timeout(submission, evidence)` lets the assigned worker refresh a still-`SUBMITTED` milestone after its seven-day review deadline, with a hard cap of three total revisions (the ordinary revision plus two timeout refreshes). Each refresh preserves the immediately prior submission/evidence and restarts the review window. It adds no storage field and does not change verdict or payout rules. The patch passed 28 mocked unit tests and three static GenVM lint checks. SDK semantic validation remains blocked by Windows `WinError 5` reading the pinned runner cache. This method is not deployed to the current Studio instance.
+The repository now contains a pending recovery patch: `refresh_submission_after_timeout(submission, evidence)` lets the assigned worker refresh a still-`SUBMITTED` milestone after its seven-day review deadline, with a hard cap of three total revisions (the ordinary revision plus two timeout refreshes). Each refresh preserves the immediately prior submission/evidence and restarts the review window. It adds no storage field and does not change verdict or payout rules. The patch passed 29 mocked unit tests and three static GenVM lint checks. SDK semantic validation remains blocked: the available RC7 archive contains runner hash `1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6`, while this Studio-pinned source requires `5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng`. Granting read access did not resolve the linter's `WinError 5`; it still cannot validate this exact runner. The recovery method is not deployed to the current Studio instance.
 
 ## Deployed test instance and state
 
@@ -52,10 +52,10 @@ Older historical addresses and transactions from the initial prototype are inten
 ## Verification completed
 
 - `genvm-lint lint outputs/ClearTask.py --json`: passed, 3 checks.
-- `pytest tests/unit/test_cleartask_guards.py -q`: 28 passed, including the bounded timeout-refresh guard. These are mocked-boundary tests; they do not simulate live validator consensus or native value transfers. These are mocked-boundary tests; they do not simulate live validator consensus or execute native value transfers.
+- `pytest tests/unit/test_cleartask_guards.py -q`: 29 passed, including bounded timeout-refresh caller, timing, and lifecycle guards. These are mocked-boundary tests; they do not simulate live validator consensus or native value transfers.
 - Contract deployment and code upgrades were accepted/finalized in Studio Dev. The prompt upgrade `0x9e7ab9d…` finalized; its follow-up adjudication `0xe06e79d…` finalized as a transaction but with `UNDETERMINED` consensus and no state write.
 - Studio accepted the ABI and state view; zero-escrow guard behavior was tested in an earlier run.
-- Local GenVM SDK validation was blocked because Windows returned `WinError 5` reading the cached RC7 SDK artifact.
+- Local GenVM SDK validation remains blocked because the extracted RC7 cache does not contain the source's pinned runner hash and the linter returns `WinError 5` even after read access was granted.
 - Python `py_compile` could not be rerun in the latest environment because the Python shim could not resolve `C:\Python314\python.exe`. Do not claim that check passed for the current revision based on the earlier checkpoint.
 - No appeal, settlement, payout claim, or external GEN transfer has been validated end to end.
 
@@ -87,3 +87,4 @@ Older historical addresses and transactions from the initial prototype are inten
 ## Scope of this checkpoint
 
 This record captures the state visible in the workspace and Studio Next Dev on 2026-10-08. It does not assert that the milestone has passed, that a payout occurred, or that validator disagreement has been fixed. A finalized `UNDETERMINED` transaction is a completed transaction whose decision did not reach consensus; it is not an accepted milestone verdict.
+
