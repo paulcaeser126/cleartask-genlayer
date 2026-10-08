@@ -2,7 +2,7 @@
 
 Prepared: 2026-10-08  
 Target: standalone GenLayer Intelligent Contract in GenLayer Studio Next Dev  
-Release candidate: ClearTask 2.0, Studio-tested source with native GEN escrow, review, grading, and appeal state
+Release candidate: ClearTask 2.1 recovery patch; local checks pass, but this source revision is not yet upgraded or Studio-tested
 
 ## Product contract
 
@@ -69,4 +69,5 @@ The contract judges only bounded user-submitted text. It does not fetch URLs or 
 ## Status update — 2026-10-08
 
 This update supersedes older deployment, funding, and adjudication status statements above. The active instance `0xDba641391485A7697E22ef794F488e256c3f3DA6` remains `SUBMITTED` with 15 GEN held. The evidence-reference prompt upgrade `0x9e7ab9d27bd135d7240a7baae640a3746bf6a60a92dfec24524c2c23b7ae13b0` finalized; however, the subsequent funded adjudication `0xe06e79d6f6ab8dfc57c84a3fcaed1f1dc9fcf04ed825de5f559a779b0f626874` finalized `UNDETERMINED`. The explorer output proposed INDETERMINATE with all five criteria missing; three validators disagreed and two were idle. No decision or payout was recorded. A bounded, time-gated worker refresh is now implemented locally to recover a still-unresolved submission after its review deadline, but it is not deployed. The build remains a Studio Dev test and is not submission-ready for real funds. See [`../docs/CHECKPOINT.md`](../docs/CHECKPOINT.md) for the full transaction record, limits, and next steps.
+
 
