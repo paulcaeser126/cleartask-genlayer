@@ -12,10 +12,13 @@ See [docs/CHECKPOINT.md](docs/CHECKPOINT.md) for the full recorded project and t
 
 ## Repository contents
 
-- `outputs/ClearTask.py` — GenLayer-native contract source, pinned to the Studio Dev runner.\n- `outputs/ClearTask-SameDay-Demo.py` — separate 15-minute Studio Dev demonstration profile; not deployed.
+- `outputs/ClearTask.py` — GenLayer-native contract source, pinned to the Studio Dev runner.
+- `outputs/ClearTask-SameDay-Demo.py` — separate 15-minute Studio Dev demonstration profile; not deployed.
 - `outputs/ClearTask-Guide.md` — operator and lifecycle guide.
 - `outputs/ClearTask-Studio-Build-Spec.md` — implementation and compatibility specification.
-- `tests/unit/test_cleartask_guards.py` — mocked-boundary unit tests.\n\nLatest local verification: 60 mocked guard tests pass across both source variants; GenVM lint passes for both. These checks do not prove validator consensus or native GEN payout behavior.
+- `tests/unit/test_cleartask_guards.py` — mocked-boundary unit tests.
+
+Latest local verification: 60 mocked guard tests pass across both source variants; GenVM lint passes for both. These checks do not prove validator consensus or native GEN payout behavior.
 
 ## Target environment
 
