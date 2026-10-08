@@ -11,7 +11,7 @@ This section supersedes older status statements below where they conflict. The b
 
 A separate short-window demo source, `outputs/ClearTask-SameDay-Demo.py`, sets both review and appeal windows to 15 minutes and preserves the pinned Studio RC7 runner. Local verification: 60 mocked guard tests pass across both source variants; GenVM lint passes for both. The demo source is staged in Studio Next and its constructor schema is recognized. A fresh instance has **not** been deployed or funded. A new deposit is separate from the old locked 15 GEN.
 
-The Studio milestone form is prepared as `ClearTask 15-Minute Escrow Demo` with five acceptance criteria. The user must submit deployment and funding transactions through Rabby. This short-window profile is for a controlled Studio Dev demonstration only. Live consensus, payout/refund transfers, and recovery after a real timeout remain unverified; it is not ready for production funds.
+The Studio form is prepared as `ClearTask 15-Minute Escrow Demo` with five criteria in the required `C1: description | C2: description | ...` format. The first deployment transaction, `0x2eecef2681ed602954a61fd2492ea90a7f55c0256a01eb1b4d353cbfe0fca630`, reached `FINALIZED` but its execution result was `ERROR` and state rolled back because the rubric lacked consecutive criterion IDs. The fee paid was 0.000078 GEN; no new instance was created. Corrected criteria are staged in Studio. Retrying deployment and funding require user wallet signatures. This 15-minute profile is for a controlled Studio Dev demo only; live consensus and native payout/refund transfers remain unverified.
 
 
 ## What the contract is intended to do
