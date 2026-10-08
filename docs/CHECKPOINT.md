@@ -13,7 +13,7 @@ The source is pinned to the exact Studio-compatible runner:
 
 `py-genlayer:5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng`
 
-The deployed source uses `gl.vm.run_nondet_default` and a validator function that evaluates whether the leader's specific proposal is defensible and returns a boolean. It fails closed for malformed/error responses. This narrowed the validator response format; it did not establish consensus in the live adjudication test. A local prompt update now states explicitly that URLs, file paths, line numbers, transaction hashes, and test/deployment claims are references rather than proof unless the relevant content is reproduced. The update has passed mocked unit tests and AST lint, but has not been deployed.
+The deployed source uses `gl.vm.run_nondet_default` and a validator function that evaluates whether the leader's specific proposal is defensible and returns a boolean. The review prompt also treats URLs, file paths, line numbers, transaction hashes, and test/deployment claims as references rather than proof unless the relevant content is reproduced. This version was deployed in the finalized code upgrade `0x9e7ab9d27bd135d7240a7baae640a3746bf6a60a92dfec24524c2c23b7ae13b0`. The following funded adjudication still ended `UNDETERMINED`; therefore the prompt change did not resolve live consensus.
 
 ## Deployed test instance and state
 
@@ -42,6 +42,8 @@ Transaction status is taken from Studio transaction history and/or the Studio De
 | First funded adjudication | [`0xef9d9d797bfb2058cb8e5ab70e4ceafd750bfef974ea7ef4cfc3158e4ed2ea7a`](https://explorer-studio-dev.genlayer.com/tx/0xef9d9d797bfb2058cb8e5ab70e4ceafd750bfef974ea7ef4cfc3158e4ed2ea7a) | Finalized `UNDETERMINED`. Leader proposed ACCEPT; two validators agreed and three disagreed. No decision committed. |
 | Latest proposal-focused validator upgrade | [`0x3b73962bc83e9526f33e00e906c3085fe2c3ee759da8f230d1e68fa041338e0d`](https://explorer-studio-dev.genlayer.com/tx/0x3b73962bc83e9526f33e00e906c3085fe2c3ee759da8f230d1e68fa041338e0d) | Explorer confirms `FINALIZED Upgrade`, normal execution, to the current instance. |
 | Second funded adjudication after that upgrade | [`0xd72951ba12ef324a845b3c45f7d0c2b9b237b7318e76c76887b19dd16819dae0`](https://explorer-studio-dev.genlayer.com/tx/0xd72951ba12ef324a845b3c45f7d0c2b9b237b7318e76c76887b19dd16819dae0) | Explorer consensus tab shows `UNDETERMINED`, leader proposed `ACCEPT`, three validator votes disagreed, one agreed, and one validator was idle. GenVM execution was `SUCCESS` with empty stdout/stderr; this is semantic validator disagreement, not a contract runtime exception. No verdict committed; escrow remains held. |
+| Evidence-reference prompt code upgrade | [`0x9e7ab9d27bd135d7240a7baae640a3746bf6a60a92dfec24524c2c23b7ae13b0`](https://explorer-studio-dev.genlayer.com/tx/0x9e7ab9d27bd135d7240a7baae640a3746bf6a60a92dfec24524c2c23b7ae13b0) | Finalized upgrade to the current instance; applied the stricter rule that references are not proof. |
+| Third funded adjudication after the prompt upgrade | [`0xe06e79d6f6ab8dfc57c84a3fcaed1f1dc9fcf04ed825de5f559a779b0f626874`](https://explorer-studio-dev.genlayer.com/tx/0xe06e79d6f6ab8dfc57c84a3fcaed1f1dc9fcf04ed825de5f559a779b0f626874) | Finalized transaction, consensus result `UNDETERMINED`. GenVM execution succeeded; equivalence-principle output proposed `INDETERMINATE` with all five criteria in `missing_evidence`. The transaction did not change contract state: the finalized state view still reports `SUBMITTED`, blank verdict, and 15 GEN `HELD`. Explorer reports 3 validator rejections, 1 acceptance, 1 idle; execution fee was 0.000079 GEN.
 
 Older historical addresses and transactions from the initial prototype are intentionally not treated as evidence for the current storage layout or payout path. See the build specification for the historical context.
 
@@ -49,7 +51,7 @@ Older historical addresses and transactions from the initial prototype are inten
 
 - `genvm-lint lint outputs/ClearTask.py --json`: passed, 3 checks.
 - `pytest tests/unit/test_cleartask_guards.py -q`: 27 passed. These are mocked-boundary tests; they do not simulate live validator consensus or execute native value transfers.
-- Contract deployment and code upgrades were accepted/finalized in Studio Dev.
+- Contract deployment and code upgrades were accepted/finalized in Studio Dev. The prompt upgrade `0x9e7ab9d…` finalized; its follow-up adjudication `0xe06e79d…` finalized as a transaction but with `UNDETERMINED` consensus and no state write.
 - Studio accepted the ABI and state view; zero-escrow guard behavior was tested in an earlier run.
 - Local GenVM SDK validation was blocked because Windows returned `WinError 5` reading the cached RC7 SDK artifact.
 - Python `py_compile` could not be rerun in the latest environment because the Python shim could not resolve `C:\Python314\python.exe`. Do not claim that check passed for the current revision based on the earlier checkpoint.
@@ -57,8 +59,8 @@ Older historical addresses and transactions from the initial prototype are inten
 
 ## Current blockers and risks
 
-1. **Consensus:** Two funded adjudications have finalized `UNDETERMINED`, including one after the proposal-focused boolean validator upgrade. Repeating the same call without diagnosing why validators disagree is not a useful verification plan and incurs fees.
-2. **Evidence and diagnostics:** The latest validator votes are now visible, but the explorer does not expose a human-readable reason from each boolean validator result. The submitted evidence is a long self-referential description of source files, transaction history, and test claims rather than the source excerpts or test output themselves. It also claims 25 tests and a successful Python compile, while this checkpoint recorded 27 tests and the current Python compile could not be rerun. The contract does not fetch those artifacts. A local prompt patch now directs the model to classify referenced-but-unreproduced artifacts as missing evidence.
+1. **Consensus:** Three funded adjudications have finalized `UNDETERMINED`, including one after the evidence-reference prompt upgrade. The latest proposed `INDETERMINATE` with all five criteria missing, but validator disagreement prevented the write. GenLayer docs state an undetermined transaction does not modify contract state. Repeating the unchanged call would incur another fee without addressing validator disagreement.
+2. **Evidence and diagnostics:** The latest validator votes are visible, but the explorer does not expose each boolean validator's reasoning. The submission contains references to sources, transactions, and tests rather than the underlying excerpts/results. The deployed prompt correctly makes these missing evidence; however, validators still disagreed on that proposal. No outside artifacts are fetched by the contract.
 3. **One revision is already consumed:** The assigned worker's sole revision finalized. Any different evidence may require a new test instance or a deliberate code-supported resubmission design; do not assume a second revision is available.
 4. **Escrow safety:** The 15 GEN stays `HELD` while no decision is recorded. Do not call payout/finalize methods until the state and timing guards show they are valid.
 5. **Native transfer behavior:** Studio Dev lacks the EVM layer / ghost contracts needed to validate external GEN transfers. The payout child message and failure/recovery behavior are unverified. This test deployment is not suitable for production funds.
@@ -66,9 +68,9 @@ Older historical addresses and transactions from the initial prototype are inten
 
 ## Recommended next work
 
-1. Deploy the local prompt patch through Studio's code upgrade flow, then verify the upgrade transaction finalized.
-2. Re-run one full-consensus adjudication on the unchanged evidence. With references treated as claims rather than proof, the expected honest result is `INDETERMINATE`, which should allow the worker to use the still-unused application appeal to supply actual excerpts and test output. Verify the explorer result and `get_state()` before any follow-up transaction.
-3. The current contract state has already consumed the one worker revision. If an INDETERMINATE decision is recorded, only the worker address can appeal; the client account cannot submit that appeal.
+1. Do not repeat adjudication against the unchanged evidence. First diagnose validator disagreements with a minimal, reproducible test case and expose stable diagnostics where the supported GenLayer API allows it.
+2. The latest decision did not commit, so the application appeal path is not open. The worker's sole revision is already consumed. A new instance with actual evidence, or a carefully reviewed upgrade that restores a safe worker resubmission path, is needed to continue the live milestone; do not claim the existing instance is complete.
+3. Once a decision is actually recorded, verify `get_state()` at `Finalized` before attempting an appeal, settlement, or payout.
 4. For the next instance, keep criteria short and observable and include the actual evidence text. Do not claim that links, source paths, transaction hashes, or test summaries were independently checked.
 5. Before any production deployment, validate native GEN payout and failed-child handling on a persistent network and obtain independent contract review.
 
