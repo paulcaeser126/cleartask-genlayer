@@ -338,6 +338,33 @@ def test_timeout_refresh_recovers_unresolved_submission_with_a_hard_limit(contra
         contract.refresh_submission_after_timeout("work v5", "evidence v5")
 
 
+def test_timeout_refresh_requires_worker_revision_and_unresolved_state(contract_runtime):
+    contract, gl, responses, _, _ = funded_contract(contract_runtime)
+    gl.message.sender_address = "worker"
+    contract.submit_work("work v1", "evidence v1")
+    contract.review_deadline = 0
+
+    gl.message.sender_address = "client"
+    with pytest.raises(FakeUserError, match="Only the assigned worker"):
+        contract.refresh_submission_after_timeout("work v2", "evidence v2")
+
+    gl.message.sender_address = "worker"
+    with pytest.raises(FakeUserError, match="Use the permitted submission revision"):
+        contract.refresh_submission_after_timeout("work v2", "evidence v2")
+
+    contract.revise_submission("work v2", "evidence v2")
+    responses.extend([
+        json.dumps(verdict("ACCEPT", "MEETS_RUBRIC", ["C1", "C2"], [], [])),
+        json.dumps({"valid": True}),
+    ])
+    gl.message.sender_address = "client"
+    contract.adjudicate()
+
+    gl.message.sender_address = "worker"
+    with pytest.raises(FakeUserError, match="Only the assigned worker can refresh unresolved work"):
+        contract.refresh_submission_after_timeout("work v3", "evidence v3")
+
+
 def test_appeal_can_reopen_once_and_preserves_first_grade(contract_runtime):
     contract, gl, responses, _, _ = submitted_contract(contract_runtime)
     responses.extend([
