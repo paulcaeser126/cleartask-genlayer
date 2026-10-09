@@ -30,7 +30,7 @@ Use consecutive rubric IDs (`C1`, `C2`, and so on), with a description after eac
 
 ## Remaining submission items
 
-1. **Make the repository public and verify access.** The owner approved public visibility, but GitHub requested password reauthentication. After completing it, open the repository in a signed-out or private browser window to confirm reviewers can access it.
+1. **Make the repository public and verify access.** The owner approved public visibility, but GitHub still requires password reauthentication. Complete that step in the GitHub settings page, then open the repository in a signed-out or private browser window to confirm reviewers can access it.
 2. **Fund the demo escrow.** From client wallet `0xB4…B782`, send a positive Studio Dev GEN amount to `fund_escrow()`. The milestone currently has zero escrow. Use test funds only.
 3. **Complete a worker contract call.** After funding, have `0x314C…AE17` call `submit_work` with non-empty submission and evidence. Confirm its Explorer transaction shows `Call`, `FINALIZED`, GenVM `SUCCESS`, and consensus `Accepted`.
 4. **Provide the final evidence.** Include the public repository link, deployed contract address, deployment transaction link, and successful worker-call transaction link.
