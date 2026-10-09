@@ -14,5 +14,6 @@ README excerpt: ClearTask is a single-milestone GEN escrow contract. The client 
 
 Deployment proof: 0x4D5887428F6C1aBD8D8ba880D59C3a342E07Bf8a was created by 0x70d086988706e4f27A53c484570B2a41897dcDD5. Deploy transaction 0xdf3f193f676d96a2231a66e3e7e1a5e82ddcb22068b06516e8a016d567e870da: FINALIZED, GenVM SUCCESS, consensus Accepted. Funding transaction 0x26418747a91f98268544b7b48745f62888b7821765c9a97b434b7d64a0795c56: FINALIZED, GenVM SUCCESS, consensus Accepted; Explorer reports 15 GEN balance.
 
-Successful contract-call proof: worker call 0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01 was Type Call, FINALIZED, from 0x314C92977Ebc38Afe69dc643eF670cF4Dc5cAE17 to the contract, GenVM SUCCESS, consensus Accepted. That call initially stored placeholder text; a second submit_work attempt correctly failed because the milestone was already SUBMITTED. After the worker signs revise_submission, add the revision transaction hash and its FINALIZED/SUCCESS/Accepted result here. No adjudication or payout is claimed.
+Successful contract-call proof: worker call 0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01 was Type Call, FINALIZED, from 0x314C92977Ebc38Afe69dc643eF670cF4Dc5cAE17 to the contract, GenVM SUCCESS, consensus Accepted. That call initially stored placeholder text; a second submit_work attempt correctly failed because the milestone was already SUBMITTED. This successful worker call demonstrates the contract-call flow; the revision corrects the stored placeholder. No adjudication or payout is claimed.
+
 
