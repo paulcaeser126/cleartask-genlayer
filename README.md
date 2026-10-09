@@ -20,8 +20,8 @@ This is a Studio Dev demonstration only. The older contract at `0xDba641391485A7
 
 | Rubric item | Status | Evidence / remaining work |
 | --- | --- | --- |
-| C1 — public source repository | **Ready to verify** | The repository owner approved making this repository public; verify its visibility at the linked repository before submission. |
-| C2 — README with purpose, deployment steps, constructor inputs, and methods | **Prepared locally** | This README documents all four. The repository must be public or otherwise shared for reviewers to access it. |
+| C1 — public source repository | **Pending** | The owner approved public visibility, but GitHub requires the owner to reauthenticate before the change can be completed. |
+| C2 — README with purpose, deployment steps, constructor inputs, and methods | **Prepared** | This README documents all four; reviewers can access it after repository visibility is changed. |
 | C3 — successful Studio Dev deployment and address | **Complete** | Address and finalized, accepted transaction are linked above. |
 | C4 — successful worker contract call | **Pending** | The designated worker must submit work from `0x314C…AE17` after the client funds this instance. |
 
