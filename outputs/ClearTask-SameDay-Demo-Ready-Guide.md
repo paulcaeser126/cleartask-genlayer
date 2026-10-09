@@ -1,39 +1,43 @@
-# ClearTask SameDay Demo — deployment and completion guide
+# ClearTask — current Studio Dev guide
 
-## Verified deployment
+## Active deployment
 
-- **Contract:** [0xB9B11468637d3aF6685A0adeAA640487Fa9BCC2B](https://explorer-studio-next.genlayer.com/address/0xB9B11468637d3aF6685A0adeAA640487Fa9BCC2B)
-- **Deployment transaction:** [0x6c0c380cc921326f90515acb427b76ef1a522481e7c8deafab8914c0bc04f7a8](https://explorer-studio-next.genlayer.com/tx/0x6c0c380cc921326f90515acb427b76ef1a522481e7c8deafab8914c0bc04f7a8)
-- **Status:** `FINALIZED`; consensus `Accepted`
-- **Deployer/client on this instance:** `0xB4E3e2D252Ce070e2289c62c9A09265b296FB782`
-- **Client wallet selected for this demo:** `0xB4E3e2D252Ce070e2289c62c9A09265b296FB782`
-- **Designated worker:** `0x314C92977Ebc38Afe69dc643eF670cF4Dc5cAE17`
-- **Network:** GenLayer Studio Next Dev, chain ID `61997`
+- Contract: https://explorer-studio-dev.genlayer.com/address/0x4D5887428F6C1aBD8D8ba880D59C3a342E07Bf8a
+- Deployment transaction: https://explorer-studio-dev.genlayer.com/tx/0xdf3f193f676d96a2231a66e3e7e1a5e82ddcb22068b06516e8a016d567e870da
+- Network: GenLayer Studio Next Dev, chain ID 61997
+- Client: 0x70d086988706e4f27A53c484570B2a41897dcDD5
+- Worker: 0x314C92977Ebc38Afe69dc643eF670cF4Dc5cAE17
+- Current Explorer balance: 15 GEN
 
-The source embedded in the deployment transaction is the corrected ready source. It fixes the rubric requirement and restricts `submit_work` to the designated worker address. The contract stores its deployer as `client`; the owner chose to use this existing `0xB4…B782` client, so no redeployment is needed. A live `get_state()` read confirms the milestone is `OPEN` with zero escrow and the designated worker recorded. Fund it only with Studio Dev test funds from the client wallet.
+The Deploy transaction is FINALIZED, GenVM SUCCESS, and consensus Accepted. The successful fund_escrow transaction is 0x26418747a91f98268544b7b48745f62888b7821765c9a97b434b7d64a0795c56.
 
-## Constructor inputs used
+## What happened
 
-**title**
+A worker submit_work call finalized successfully as transaction 0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01. It stored placeholder submission text. The later submit_work transaction 0x67e7b4075b728468f1a7f300fc60581a9f139d9b97c9a897510bb2a667b6c2f2 failed with “This milestone is not open for submissions” because the contract was already SUBMITTED. This is the expected guard for a second initial submission, not a reason to call submit_work again.
 
-```text
-ClearTask GenLayer Contract Demo
-```
+## Correct the stored submission
 
-**rubric**
+1. In Studio Next, call the read method get_state() and confirm status is SUBMITTED and revision_used is 0.
+2. Sign in with the designated worker wallet 0x314C92977Ebc38Afe69dc643eF670cF4Dc5cAE17.
+3. Expand revise_submission, not submit_work.
+4. Enter the final work summary in submission and factual supporting details in evidence.
+5. Send the transaction and verify Explorer shows Type Call, FINALIZED, GenVM SUCCESS, and Accepted consensus. Record its full hash and confirm get_state() shows the corrected values and revision_used=1.
+6. Do not adjudicate until the source repository is public and the revision is verified.
 
-```text
+The reviewer rubric treats links, filenames, and transaction hashes as references; reproduce short source/README excerpts and transaction result details in evidence. Do not claim a verdict, settlement, payout, or repository public access until verified.
+
+## Constructor values
+
+Title: ClearTask GenLayer Contract Demo
+
+Rubric:
 C1: The worker provides a public repository containing the standalone GenLayer contract source. | C2: The README explains the contract purpose, deployment steps, constructor inputs, and public methods. | C3: The contract successfully deploys in GenLayer Studio Next Dev, and its address is provided. | C4: The worker provides transaction details showing at least one successful contract call.
-```
 
-Use consecutive rubric IDs (`C1`, `C2`, and so on), with a description after each colon.
+## Source
 
-## Remaining submission items
+Use outputs/ClearTask-SameDay-Demo-Ready.py. It begins with the pinned Studio RC7 runner and is the standalone source for this deployment. Its public methods are documented in the root README.
 
-1. **Make the repository public and verify access.** The owner approved public visibility, but GitHub still requires password reauthentication. Complete that step in the GitHub settings page, then open the repository in a signed-out or private browser window to confirm reviewers can access it.
-2. **Fund the demo escrow.** From client wallet `0xB4…B782`, send a positive Studio Dev GEN amount to `fund_escrow()`. The milestone currently has zero escrow. Use test funds only.
-3. **Complete a worker contract call.** After funding, have `0x314C…AE17` call `submit_work` with non-empty submission and evidence. Confirm its Explorer transaction shows `Call`, `FINALIZED`, GenVM `SUCCESS`, and consensus `Accepted`.
-4. **Provide the final evidence.** Include the public repository link, deployed contract address, deployment transaction link, and successful worker-call transaction link.
+## Wallet roles and safety
 
-The previous contract at `0xDba641391485A7697E22ef794F488e256c3f3DA6` is separate and still holds the previously reported 15 GEN Studio Dev escrow. Nothing in this deployment moved or released that escrow. Keep this workflow on Studio Dev test funds; production payout behavior has not been verified.
+The deployment wallet is the immutable client and may fund or cancel before submission. Only the fixed designated worker may submit or revise work. The 15 GEN balance is Studio Dev test escrow and remains held while no decision is recorded. Do not use production funds.
 
