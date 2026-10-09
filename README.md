@@ -12,7 +12,7 @@ The corrected short-window source is `outputs/ClearTask-SameDay-Demo-Ready.py`. 
 - Designated worker: `0x314C92977Ebc38Afe69dc643eF670cF4Dc5cAE17`
 - Environment: GenLayer Studio Next Dev, chain ID `61997`
 
-**This is not yet a complete submission.** The instance was deployed by `0xB4…B782`, not the previously intended client wallet `0x70d086988706e4f27A53c484570B2a41897dcDD5`. The deployer becomes the contract client, so the intended wallet cannot use client-only methods on this instance. Also, a successful call from the designated worker has not yet been verified. Do not fund this instance until the client wallet discrepancy is resolved.
+**This is not yet a complete submission.** The owner chose to keep the existing instance and use its deployer, `0xB4…B782`, as the client. A live `get_state()` read shows the milestone is `OPEN`, has zero GEN escrow, and records the designated worker. A successful call from that worker has not yet been verified. Fund only this Studio Dev test instance from the `0xB4…B782` client account, and use test funds only.
 
 This is a Studio Dev demonstration only. The older contract at `0xDba641391485A7697E22ef794F488e256c3f3DA6` is separate and still holds the previously reported 15 GEN test escrow; this deployment did not move or release those funds. Do not use real or production funds.
 
@@ -25,7 +25,7 @@ This is a Studio Dev demonstration only. The older contract at `0xDba641391485A7
 | C3 — successful Studio Dev deployment and address | **Complete** | Address and finalized, accepted transaction are linked above. |
 | C4 — successful worker contract call | **Pending** | The designated worker must submit work from `0x314C…AE17` after the client funds this instance. |
 
-The deployed instance's client is `0xB4…B782`. Confirm that this is the intended client before funding; otherwise deploy a new instance from `0x70…cDD5`.
+The deployed instance's client is `0xB4…B782`, which the owner selected for this demonstration. No redeployment is needed for this choice.
 
 ## Repository contents
 
