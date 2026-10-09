@@ -1,30 +1,76 @@
-# ClearTask — GenLayer Intelligent Contract
+# ClearTask — GenLayer milestone escrow demo
 
-ClearTask is a standalone GenLayer contract for a single milestone. A client defines a fixed rubric and funds GEN escrow; a worker submits text and evidence; GenLayer validators review the submission; and the contract tracks a verdict, score, grade, appeal, settlement, and payout claim.
+ClearTask is a single-milestone escrow contract. The client sets a task title and numbered rubric, funds GEN escrow, and the designated worker submits work and evidence. GenLayer validators evaluate the submission; the contract tracks the result, review and appeal windows, settlement, and payout claim.
 
-## Checkpoint status — 2026-10-09
+## Current Studio Dev deployment
 
-**Not ready for production funds or a claim of successful adjudication.** The original Studio Dev instance `0xDba641391485A7697E22ef794F488e256c3f3DA6` still holds 15 GEN in `SUBMITTED`; funded adjudications finalized `UNDETERMINED`. The bounded worker recovery method is now finalized in an upgrade to that instance, but it has not resolved validator disagreement or settled the old escrow.
+The corrected short-window source is `outputs/ClearTask-SameDay-Demo-Ready.py`. Its deployment finalized with consensus accepted:
 
-A separate `outputs/ClearTask-SameDay-Demo.py` uses 15-minute review and appeal windows. Its source passes the local guard suite and GenVM lint, and Studio Next recognizes its constructor. The corrected file and milestone inputs are staged in Studio, but **the fresh instance has not been deployed or funded**. The first deploy transaction `0x2eecef2681ed602954a61fd2492ea90a7f55c0256a01eb1b4d353cbfe0fca630` finalized with execution `ERROR` and rolled back because the rubric needed consecutive `C1: description | C2: description` labels; its fee was about 0.000078 GEN. The old escrow remains separate. Live consensus and native payout behavior remain unverified; use this profile only for a controlled Studio Dev demonstration.
+- Contract: [0xB9B11468637d3aF6685A0adeAA640487Fa9BCC2B](https://explorer-studio-next.genlayer.com/address/0xB9B11468637d3aF6685A0adeAA640487Fa9BCC2B)
+- Deployment transaction: [0x6c0c380cc921326f90515acb427b76ef1a522481e7c8deafab8914c0bc04f7a8](https://explorer-studio-next.genlayer.com/tx/0x6c0c380cc921326f90515acb427b76ef1a522481e7c8deafab8914c0bc04f7a8)
+- Deployer and contract client: `0xB4E3e2D252Ce070e2289c62c9A09265b296FB782`
+- Designated worker: `0x314C92977Ebc38Afe69dc643eF670cF4Dc5cAE17`
+- Environment: GenLayer Studio Next Dev, chain ID `61997`
 
-See [docs/CHECKPOINT.md](docs/CHECKPOINT.md) for the full recorded project and transaction history, current blockers, verification record, and next work.
+**This is not yet a complete submission.** The instance was deployed by `0xB4…B782`, not the previously intended client wallet `0x70d086988706e4f27A53c484570B2a41897dcDD5`. The deployer becomes the contract client, so the intended wallet cannot use client-only methods on this instance. Also, a successful call from the designated worker has not yet been verified. Do not fund this instance until the client wallet discrepancy is resolved.
+
+This is a Studio Dev demonstration only. The older contract at `0xDba641391485A7697E22ef794F488e256c3f3DA6` is separate and still holds the previously reported 15 GEN test escrow; this deployment did not move or release those funds. Do not use real or production funds.
+
+## Submission checklist
+
+| Rubric item | Status | Evidence / remaining work |
+| --- | --- | --- |
+| C1 — public source repository | **Ready to verify** | The repository owner approved making this repository public; verify its visibility at the linked repository before submission. |
+| C2 — README with purpose, deployment steps, constructor inputs, and methods | **Prepared locally** | This README documents all four. The repository must be public or otherwise shared for reviewers to access it. |
+| C3 — successful Studio Dev deployment and address | **Complete** | Address and finalized, accepted transaction are linked above. |
+| C4 — successful worker contract call | **Pending** | The designated worker must submit work from `0x314C…AE17` after the client funds this instance. |
+
+The deployed instance's client is `0xB4…B782`. Confirm that this is the intended client before funding; otherwise deploy a new instance from `0x70…cDD5`.
 
 ## Repository contents
 
-- `outputs/ClearTask.py` — GenLayer-native contract source, pinned to the Studio Dev runner.
-- `outputs/ClearTask-SameDay-Demo.py` — separate 15-minute Studio Dev demonstration profile; not deployed.
-- `outputs/ClearTask-Guide.md` — operator and lifecycle guide.
-- `outputs/ClearTask-Studio-Build-Spec.md` — implementation and compatibility specification.
-- `tests/unit/test_cleartask_guards.py` — mocked-boundary unit tests.
+- `outputs/ClearTask-SameDay-Demo-Ready.py` — corrected source used by the deployment above; pins the GenVM runner and restricts submissions to the designated worker.
+- `outputs/ClearTask-SameDay-Demo-Ready-Guide.md` — constructor inputs, wallet roles, links, and remaining demo steps.
+- `outputs/ClearTask-SameDay-Demo.py` — earlier short-window draft.
+- `outputs/ClearTask.py` — main contract implementation and test target.
+- `outputs/ClearTask-Guide.md` and `outputs/ClearTask-Studio-Build-Spec.md` — earlier implementation documentation.
+- `tests/unit/test_cleartask_guards.py` — unit tests for guard and state-transition behavior.
 
-Latest local verification: 60 mocked guard tests pass across both source variants; GenVM lint passes for both. These checks do not prove validator consensus or native GEN payout behavior.
+## Constructor inputs used
 
-## Target environment
+**Title:** `ClearTask GenLayer Contract Demo`
 
-- GenLayer Studio Next Dev build `v0.123.0-rc.7`, chain ID `61997`.
-- Runner: `py-genlayer:5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng`.
-- Test instance: [`0xDba641391485A7697E22ef794F488e256c3f3DA6`](https://explorer-studio-dev.genlayer.com/address/0xDba641391485A7697E22ef794F488e256c3f3DA6).
+**Rubric:**
 
-This is a Studio Dev test instance. Do not use real or production funds until consensus, native payout behavior, child-transfer failure handling, and security review are complete.
+```text
+C1: The worker provides a public repository containing the standalone GenLayer contract source. | C2: The README explains the contract purpose, deployment steps, constructor inputs, and public methods. | C3: The contract successfully deploys in GenLayer Studio Next Dev, and its address is provided. | C4: The worker provides transaction details showing at least one successful contract call.
+```
+
+Rubric criteria use consecutive IDs (`C1`, `C2`, …), each followed by a description. The owner approved public visibility for this repository. Public visibility exposes all repository files and commit history, so review those contents before sharing the repository link.
+
+## Deploy and run in Studio Dev
+
+1. Open GenLayer Studio Next Dev and import `outputs/ClearTask-SameDay-Demo-Ready.py`.
+2. Connect the wallet that should be the contract client. The deploying wallet becomes `client` and alone can fund or cancel the milestone.
+3. Deploy a new instance with the title and rubric above. Verify the Explorer record is a `Deploy` transaction with `FINALIZED`, GenVM `SUCCESS`, and consensus `Accepted`, then record the new address and transaction link.
+4. The client calls `fund_escrow()` with a positive Studio Dev GEN value.
+5. The designated worker calls `submit_work(submission, evidence)` with non-empty text. Verify this separate transaction is a successful `Call` from the worker.
+6. The client reviews with `adjudicate()`. The worker may call `appeal(reason, additional_evidence)` after a rejection or indeterminate result; the client may appeal an accepted result. After the appeal window, call `finalize_decision()`. The designated payout recipient calls `claim_payout()` when the state permits it.
+
+## Public methods
+
+- `get_state()` — read the milestone, worker, escrow, submission, review, and payout state.
+- `fund_escrow()` — payable; client only, and only once for a positive amount.
+- `cancel()` — client only, before work is submitted.
+- `submit_work(submission, evidence)` — designated worker only, after funding.
+- `revise_submission(submission, evidence)` — designated worker only, while review is pending and within the revision allowance.
+- `refresh_submission_after_timeout(submission, evidence)` — designated worker only, after the review window expires and within the revision limit.
+- `adjudicate()` — evaluate the submission against the rubric using validator consensus.
+- `appeal(reason, additional_evidence)` — one appeal by the party permitted for the verdict.
+- `finalize_decision()` — finalize after the appeal period ends.
+- `claim_payout()` — transfer the claimable escrow to the recorded recipient.
+
+## Verification
+
+`genvm-lint lint outputs/ClearTask-SameDay-Demo-Ready.py` passes its three AST checks. `pytest tests/unit/test_cleartask_guards.py -q` reports 94 passed and 2 skipped. The `genvm-lint check` SDK semantic-validation step could not read the local cached SDK due to `WinError 5`; the Studio deployment itself finalized with consensus `Accepted`. These checks do not verify live validator adjudication or payout behavior. The successful worker call and correct client-controlled lifecycle remain outstanding.
 
