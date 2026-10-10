@@ -19,6 +19,7 @@ The deployment transaction is FINALIZED with GenVM SUCCESS and Accepted consensu
 The contract holds 15 GEN. The first worker call, [0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01](https://explorer-studio-dev.genlayer.com/tx/0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01), stored placeholder submission text. The designated worker then used revise_submission to replace it; the Studio state snapshot showed revision_used: 1 and the corrected text. Do not call submit_work again.
 
 The client called adjudicate. Transaction [0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672](https://explorer-studio-dev.genlayer.com/tx/0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672) is FINALIZED with Result SUCCESS. This verifies a successful contract call. Read get_state() again in Studio to confirm the recorded status and verdict; the transaction result alone does not establish which verdict was recorded. No settlement or payout is claimed.
+
 ## Constructor inputs
 
 Title: ClearTask GenLayer Contract Demo
