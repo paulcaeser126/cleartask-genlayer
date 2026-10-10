@@ -12,13 +12,13 @@ This is the current evaluation instance, deployed on GenLayer Studio Next Dev (c
 - Designated worker: 0x314C92977Ebc38Afe69dc643eF670cF4Dc5cAE17
 - Escrow funding: [0x26418747a91f98268544b7b48745f62888b7821765c9a97b434b7d64a0795c56](https://explorer-studio-dev.genlayer.com/tx/0x26418747a91f98268544b7b48745f62888b7821765c9a97b434b7d64a0795c56), finalized with GenVM SUCCESS and Accepted consensus; Explorer currently reports 15 GEN balance.
 
-The deployment transaction is FINALIZED with GenVM SUCCESS and Accepted consensus. The Explorer Code tab matches the pinned-runner source published in outputs/ClearTask-SameDay-Demo-Ready.py.
+The deployment transaction is FINALIZED with GenVM SUCCESS and Accepted consensus. The repository source now includes a validator-agreement fix, but that patch has not yet been applied to the deployed instance. The latest observed `get_state()` remains `SUBMITTED` with an empty verdict and 15 GEN held. A successful GenVM execution does not by itself mean an adjudication was accepted by consensus.
 
 ### Current lifecycle status
 
 The contract holds 15 GEN. The first worker call, [0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01](https://explorer-studio-dev.genlayer.com/tx/0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01), stored placeholder submission text. The designated worker then used revise_submission to replace it; the Studio state snapshot showed revision_used: 1 and the corrected text. Do not call submit_work again.
 
-The client called adjudicate. Transaction [0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672](https://explorer-studio-dev.genlayer.com/tx/0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672) is FINALIZED with Result SUCCESS. This verifies a successful contract call. Read get_state() again in Studio to confirm the recorded status and verdict; the transaction result alone does not establish which verdict was recorded. No settlement or payout is claimed.
+The client called `adjudicate`. Transaction [0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672](https://explorer-studio-dev.genlayer.com/tx/0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672) is FINALIZED with GenVM Result SUCCESS, but the subsequent state read remained `SUBMITTED` with a blank verdict. No adjudication was committed. The accepted `fund_escrow` transaction above provides the successful contract-call details for C4. No settlement or payout is claimed.
 
 ## Constructor inputs
 
@@ -32,7 +32,9 @@ The contract requires a non-empty title of at most 120 characters and one to eig
 
 ## Source and deployment steps
 
-The deployed source is outputs/ClearTask-SameDay-Demo-Ready.py. It pins the GenVM runner in its first-line Depends header. To reproduce the demo, import this standalone file in Studio Next Dev, connect the intended client wallet, deploy with the title and rubric above, and verify that the Deploy transaction is FINALIZED with GenVM SUCCESS and Accepted consensus. The deploying address becomes the client. The client calls fund_escrow() with a positive Studio Dev GEN amount; the fixed worker then calls submit_work() once. Verify each transaction in Explorer.
+The standalone source is outputs/ClearTask-SameDay-Demo-Ready.py and pins its GenVM runner in the first-line `Depends` header. For the existing instance, use **Upgrade code** with this file, sign the upgrade from the client wallet, and wait for FINALIZED with Accepted consensus. The patch changes validator comparison logic and does not add or reorder storage fields, so it is intended to preserve the existing address and escrow. After the upgrade, the designated worker can call `refresh_submission_after_timeout(submission, evidence)` because the review deadline has passed and one revision has been used. The client can then call `adjudicate()`. Confirm accepted consensus and `get_state()` showing `DECIDED` with a non-empty verdict before presenting the instance as fully adjudicated.
+
+For a fresh demo, import this standalone file in Studio Next Dev, connect the intended client wallet, deploy with the title and rubric above, and verify that the Deploy transaction is FINALIZED with GenVM SUCCESS and Accepted consensus. The deploying address becomes the client. The client calls `fund_escrow()` with a positive Studio Dev GEN amount; the fixed worker then calls `submit_work()` once. Verify each transaction in Explorer.
 
 This repository is publicly accessible for rubric criterion C1. GitHub Settings confirmed the repository visibility is Public on 2026-10-10.
 
@@ -53,4 +55,3 @@ This repository is publicly accessible for rubric criterion C1. GitHub Settings 
 ## Limits
 
 This is a Studio Dev demonstration, not a production-funds deployment. No settlement or payout transaction is claimed in this repository.
-
