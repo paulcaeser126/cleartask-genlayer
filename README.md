@@ -16,10 +16,9 @@ The deployment transaction is FINALIZED with GenVM SUCCESS and Accepted consensu
 
 ### Current lifecycle status
 
-The contract is SUBMITTED and holds 15 GEN. The first worker call, [0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01](https://explorer-studio-dev.genlayer.com/tx/0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01), is a FINALIZED Call from the designated worker; Explorer shows GenVM SUCCESS and Accepted consensus. That call stored placeholder submission text, so it must be corrected with the worker-only revise_submission method before adjudication. A later submit_work attempt, [0x67e7b4075b728468f1a7f300fc60581a9f139d9b97c9a897510bb2a667b6c2f2](https://explorer-studio-dev.genlayer.com/tx/0x67e7b4075b728468f1a7f300fc60581a9f139d9b97c9a897510bb2a667b6c2f2), finalized with an execution error because a second initial submission is not allowed after the milestone is SUBMITTED. Do not call submit_work again.
+The contract holds 15 GEN. The first worker call, [0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01](https://explorer-studio-dev.genlayer.com/tx/0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01), stored placeholder submission text. The designated worker then used revise_submission to replace it; the Studio state snapshot showed revision_used: 1 and the corrected text. Do not call submit_work again.
 
-No adjudication, accepted milestone verdict, settlement, or payout is claimed. Before revising, read get_state() and confirm revision_used is 0. The designated worker must sign one revise_submission(submission, evidence) call from 0x314C92977Ebc38Afe69dc643eF670cF4Dc5cAE17. A different connected wallet will fail the worker check.
-
+The client called adjudicate. Transaction [0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672](https://explorer-studio-dev.genlayer.com/tx/0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672) is FINALIZED with Result SUCCESS. This verifies a successful contract call. Read get_state() again in Studio to confirm the recorded status and verdict; the transaction result alone does not establish which verdict was recorded. No settlement or payout is claimed.
 ## Constructor inputs
 
 Title: ClearTask GenLayer Contract Demo
@@ -52,5 +51,5 @@ This repository is publicly accessible for rubric criterion C1. GitHub Settings 
 
 ## Limits
 
-This is a Studio Dev demonstration, not a production-funds deployment. Live adjudication has previously reached UNDETERMINED on another instance, and native child-transfer failure recovery has not been proven. The current 15 GEN remains held pending a recorded verdict and later settlement.
+This is a Studio Dev demonstration, not a production-funds deployment. No settlement or payout transaction is claimed in this repository.
 
