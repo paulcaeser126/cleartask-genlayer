@@ -19,7 +19,7 @@ This is a new, standalone milestone escrow contract. It is separate from the ear
 | `rubric` | `str` | Required; up to 4,000 characters |
 | `worker_address` | `str` | A 20-byte `0x` address; the deploying wallet becomes the client |
 
-The contract is pinned to the documented GenLayer Python runner hash on the first line of `ClearTask.py`.
+The contract pins runner `py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6` on the first line of `ClearTask.py`. GenVM lint and contract schema validation pass. It has not yet been deployed on Studio Next Dev, so no deployment address or successful transaction is claimed for this build.
 
 ## Public methods
 
