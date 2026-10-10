@@ -18,7 +18,7 @@ The deployment transaction is FINALIZED with GenVM SUCCESS and Accepted consensu
 
 The contract is SUBMITTED and holds 15 GEN. The first worker call, [0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01](https://explorer-studio-dev.genlayer.com/tx/0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01), is a FINALIZED Call from the designated worker; Explorer shows GenVM SUCCESS and Accepted consensus. That call stored placeholder submission text, so it must be corrected with the worker-only revise_submission method before adjudication. A later submit_work attempt, [0x67e7b4075b728468f1a7f300fc60581a9f139d9b97c9a897510bb2a667b6c2f2](https://explorer-studio-dev.genlayer.com/tx/0x67e7b4075b728468f1a7f300fc60581a9f139d9b97c9a897510bb2a667b6c2f2), finalized with an execution error because a second initial submission is not allowed after the milestone is SUBMITTED. Do not call submit_work again.
 
-No adjudication, accepted milestone verdict, settlement, or payout is claimed. Before revising, read get_state() and confirm revision_used is 0. The designated worker must sign one revise_submission(submission, evidence) call. The current app session cannot sign transactions for the user.
+No adjudication, accepted milestone verdict, settlement, or payout is claimed. Before revising, read get_state() and confirm revision_used is 0. The designated worker must sign one revise_submission(submission, evidence) call from 0x314C92977Ebc38Afe69dc643eF670cF4Dc5cAE17. A different connected wallet will fail the worker check.
 
 ## Constructor inputs
 
@@ -34,7 +34,7 @@ The contract requires a non-empty title of at most 120 characters and one to eig
 
 The deployed source is outputs/ClearTask-SameDay-Demo-Ready.py. It pins the GenVM runner in its first-line Depends header. To reproduce the demo, import this standalone file in Studio Next Dev, connect the intended client wallet, deploy with the title and rubric above, and verify that the Deploy transaction is FINALIZED with GenVM SUCCESS and Accepted consensus. The deploying address becomes the client. The client calls fund_escrow() with a positive Studio Dev GEN amount; the fixed worker then calls submit_work() once. Verify each transaction in Explorer.
 
-This repository must be publicly accessible for rubric criterion C1. GitHub currently reports it as private; its owner must complete GitHub's password reauthentication and visibility change before reviewers can access it.
+This repository is publicly accessible for rubric criterion C1. GitHub Settings confirmed the repository visibility is Public on 2026-10-10.
 
 ## Public methods
 
