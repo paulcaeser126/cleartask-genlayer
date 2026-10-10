@@ -12,7 +12,7 @@ This is the current evaluation instance, deployed on GenLayer Studio Next Dev (c
 - Designated worker: 0x314C92977Ebc38Afe69dc643eF670cF4Dc5cAE17
 - Escrow funding: [0x26418747a91f98268544b7b48745f62888b7821765c9a97b434b7d64a0795c56](https://explorer-studio-dev.genlayer.com/tx/0x26418747a91f98268544b7b48745f62888b7821765c9a97b434b7d64a0795c56), finalized with GenVM SUCCESS and Accepted consensus; Explorer currently reports 15 GEN balance.
 
-The deployment transaction is FINALIZED with GenVM SUCCESS and Accepted consensus. The repository source now includes a validator-agreement fix, but that patch has not yet been applied to the deployed instance. The latest observed `get_state()` remains `SUBMITTED` with an empty verdict and 15 GEN held. A successful GenVM execution does not by itself mean an adjudication was accepted by consensus.
+The latest adjudication, [0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672](https://explorer-studio-dev.genlayer.com/tx/0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672), finalized with GenVM `SUCCESS` but consensus `UNDETERMINED`; it did not update state. Explorer shows the leader proposed `INDETERMINATE`, three validators disagreed, and two were idle. The previous validator required exact agreement on per-criterion arrays, which are not the fields that control escrow. The local candidate now independently compares the escrow-controlling verdict and its deterministic reason; the displayed criterion arrays are diagnostic detail, and score/grade are derived from the agreed verdict. This candidate has not been upgraded on-chain. The latest observed `get_state()` remains `SUBMITTED`, verdict empty, with 15 GEN held.
 
 ### Current lifecycle status
 
@@ -32,7 +32,7 @@ The contract requires a non-empty title of at most 120 characters and one to eig
 
 ## Source and deployment steps
 
-The standalone source is outputs/ClearTask-SameDay-Demo-Ready.py and pins its GenVM runner in the first-line `Depends` header. For the existing instance, use **Upgrade code** with this file, sign the upgrade from the client wallet, and wait for FINALIZED with Accepted consensus. The patch changes validator comparison logic and does not add or reorder storage fields, so it is intended to preserve the existing address and escrow. After the upgrade, the designated worker can call `refresh_submission_after_timeout(submission, evidence)` because the review deadline has passed and one revision has been used. The client can then call `adjudicate()`. Confirm accepted consensus and `get_state()` showing `DECIDED` with a non-empty verdict before presenting the instance as fully adjudicated.
+The standalone source is `outputs/ClearTask-SameDay-Demo-Ready.py` and pins its GenVM runner in the first-line `Depends` header. Static GenVM lint passes all three checks. Full SDK validation could not run because the installed RC7 linter archive is missing this exact pinned runner. For the existing instance, use **Upgrade code** with this file, sign the upgrade from the client wallet, and wait for FINALIZED with Accepted consensus. The patch adds or reorders no storage fields and is intended to preserve the existing address and escrow. After the upgrade, the designated worker can call `refresh_submission_after_timeout(submission, evidence)` because the review deadline has passed and a revision has already been used. The client can then call `adjudicate()`. Confirm accepted consensus and `get_state()` showing `DECIDED` with a non-empty verdict before presenting the instance as fully adjudicated.
 
 For a fresh demo, import this standalone file in Studio Next Dev, connect the intended client wallet, deploy with the title and rubric above, and verify that the Deploy transaction is FINALIZED with GenVM SUCCESS and Accepted consensus. The deploying address becomes the client. The client calls `fund_escrow()` with a positive Studio Dev GEN amount; the fixed worker then calls `submit_work()` once. Verify each transaction in Explorer.
 
@@ -55,3 +55,4 @@ This repository is publicly accessible for rubric criterion C1. GitHub Settings 
 ## Limits
 
 This is a Studio Dev demonstration, not a production-funds deployment. No settlement or payout transaction is claimed in this repository.
+
