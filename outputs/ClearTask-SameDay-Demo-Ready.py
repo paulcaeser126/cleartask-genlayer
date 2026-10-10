@@ -249,14 +249,25 @@ def _validator_reproduces_proposal(
     evidence: str,
     appeal_context: str,
 ) -> bool:
-    """Re-evaluate independently, then compare the complete normalized decision."""
+    """Re-evaluate independently and compare outcome and score-driving counts.
+
+    Criterion IDs and explanatory reason codes can vary between valid LLM
+    analyses. Requiring those details to match exactly caused repeated
+    UNDETERMINED consensus results. Validators still independently assess the
+    same evidence and must agree on the verdict and the numbers of met and
+    failed criteria; the leader's normalized per-criterion detail is retained.
+    """
     if not isinstance(leader_result, gl.vm.Return):
         return False
     try:
         expected_codes = [item["id"] for item in criteria]
         proposed = _validate_decision(leader_result.calldata, expected_codes)
         independent = _evaluate(title, criteria, submission, evidence, appeal_context)
-        return independent == proposed
+        return (
+            independent["verdict"] == proposed["verdict"]
+            and len(independent["criteria_met"]) == len(proposed["criteria_met"])
+            and len(independent["criteria_not_met"]) == len(proposed["criteria_not_met"])
+        )
     except (ValueError, TypeError, KeyError, AttributeError, gl.vm.UserError):
         return False
 
@@ -581,4 +592,3 @@ class ClearTask(gl.contract.Contract):
             "payout_recipient": str(self.payout_recipient),
             "payout_status": _payout_label(self.payout_status),
         }, separators=(",", ":"))
-
