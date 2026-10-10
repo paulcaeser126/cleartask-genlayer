@@ -1,58 +1,44 @@
-# ClearTask — GenLayer milestone escrow demo
+# ClearTask — GenLayer milestone escrow
 
-ClearTask is a single-milestone GEN escrow contract. The client defines a title and numbered rubric, funds escrow, and a designated worker submits work and evidence. GenLayer validators assess the submitted text; the contract records a verdict and manages review, appeal, settlement, and payout states.
+This repository is preparing a fresh, standalone ClearTask contract build.
 
-## Active Studio Next Dev instance
+## Current submission source
 
-This is the current evaluation instance, deployed on GenLayer Studio Next Dev (chain ID 61997):
+- Contract: [fresh-cleartask/ClearTask.py](fresh-cleartask/ClearTask.py)
+- Build, constructor, method, and deployment guide: [fresh-cleartask/README.md](fresh-cleartask/README.md)
+- Review pull request: [#1](https://github.com/paulcaeser126/cleartask-genlayer/pull/1)
 
-- Contract: [0x4D5887428F6C1aBD8D8ba880D59C3a342E07Bf8a](https://explorer-studio-dev.genlayer.com/address/0x4D5887428F6C1aBD8D8ba880D59C3a342E07Bf8a)
-- Deployment transaction: [0xdf3f193f676d96a2231a66e3e7e1a5e82ddcb22068b06516e8a016d567e870da](https://explorer-studio-dev.genlayer.com/tx/0xdf3f193f676d96a2231a66e3e7e1a5e82ddcb22068b06516e8a016d567e870da)
-- Client/deployer: 0x70d086988706e4f27A53c484570B2a41897dcDD5
-- Designated worker: 0x314C92977Ebc38Afe69dc643eF670cF4Dc5cAE17
-- Escrow funding: [0x26418747a91f98268544b7b48745f62888b7821765c9a97b434b7d64a0795c56](https://explorer-studio-dev.genlayer.com/tx/0x26418747a91f98268544b7b48745f62888b7821765c9a97b434b7d64a0795c56), finalized with GenVM SUCCESS and Accepted consensus; Explorer currently reports 15 GEN balance.
+This contract uses a concrete pinned runner hash in its first-line `Depends` header. It has one revision, one appeal within a 15-minute window, and explicit client/worker permissions for escrow and settlement.
 
-The latest adjudication, [0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672](https://explorer-studio-dev.genlayer.com/tx/0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672), finalized with GenVM `SUCCESS` but consensus `UNDETERMINED`; it did not update state. Explorer shows the leader proposed `INDETERMINATE`, three validators disagreed, and two were idle. The previous validator required exact agreement on per-criterion arrays, which are not the fields that control escrow. The local candidate now independently compares the escrow-controlling verdict and its deterministic reason; the displayed criterion arrays are diagnostic detail, and score/grade are derived from the agreed verdict. This candidate has not been upgraded on-chain. The latest observed `get_state()` remains `SUBMITTED`, verdict empty, with 15 GEN held.
+## Constructor
 
-### Current lifecycle status
+The deploying wallet becomes the client. Provide:
 
-The contract holds 15 GEN. The first worker call, [0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01](https://explorer-studio-dev.genlayer.com/tx/0x908fb2d3dc0b776f29af63c87583ee18898e71f842dcc8cdcaf96ff7b3525f01), stored placeholder submission text. The designated worker then used revise_submission to replace it; the Studio state snapshot showed revision_used: 1 and the corrected text. Do not call submit_work again.
+| Field | Type | Requirement |
+|---|---|---|
+| `title` | `str` | Required; at most 120 characters |
+| `rubric` | `str` | Required; at most 4,000 characters |
+| `worker_address` | `str` | The worker's 20-byte `0x` address |
 
-The client called `adjudicate`. Transaction [0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672](https://explorer-studio-dev.genlayer.com/tx/0x82f65c866722ad0eb95f589df42c14be5a23184decb39f7b8b773c12d42b9672) is FINALIZED with GenVM Result SUCCESS, but the subsequent state read remained `SUBMITTED` with a blank verdict. No adjudication was committed. The accepted `fund_escrow` transaction above provides the successful contract-call details for C4. No settlement or payout is claimed.
-
-## Constructor inputs
-
-Title: ClearTask GenLayer Contract Demo
-
-Rubric:
-
-C1: The worker provides a public repository containing the standalone GenLayer contract source. | C2: The README explains the contract purpose, deployment steps, constructor inputs, and public methods. | C3: The contract successfully deploys in GenLayer Studio Next Dev, and its address is provided. | C4: The worker provides transaction details showing at least one successful contract call.
-
-The contract requires a non-empty title of at most 120 characters and one to eight rubric criteria with consecutive IDs (C1, C2, ...), each followed by a description. The deployed worker address is fixed in the source.
-
-## Source and deployment steps
-
-The standalone source is `outputs/ClearTask-SameDay-Demo-Ready.py` and pins its GenVM runner in the first-line `Depends` header. Static GenVM lint passes all three checks. Full SDK validation could not run because the installed RC7 linter archive is missing this exact pinned runner. For the existing instance, use **Upgrade code** with this file, sign the upgrade from the client wallet, and wait for FINALIZED with Accepted consensus. The patch adds or reorders no storage fields and is intended to preserve the existing address and escrow. After the upgrade, the designated worker can call `refresh_submission_after_timeout(submission, evidence)` because the review deadline has passed and a revision has already been used. The client can then call `adjudicate()`. Confirm accepted consensus and `get_state()` showing `DECIDED` with a non-empty verdict before presenting the instance as fully adjudicated.
-
-For a fresh demo, import this standalone file in Studio Next Dev, connect the intended client wallet, deploy with the title and rubric above, and verify that the Deploy transaction is FINALIZED with GenVM SUCCESS and Accepted consensus. The deploying address becomes the client. The client calls `fund_escrow()` with a positive Studio Dev GEN amount; the fixed worker then calls `submit_work()` once. Verify each transaction in Explorer.
-
-This repository is publicly accessible for rubric criterion C1. GitHub Settings confirmed the repository visibility is Public on 2026-10-10.
+Suggested demo title: `ClearTask GenLayer Contract Demo`.
 
 ## Public methods
 
-- get_state() — reads title, rubric, client, worker, lifecycle status, submission/evidence, deadlines, verdict, escrow, and payout state.
-- fund_escrow() — payable; client only, positive value, once while OPEN.
-- cancel() — client only, before work is submitted.
-- submit_work(submission, evidence) — designated worker only, after funding, once.
-- revise_submission(submission, evidence) — designated worker can replace the initial submission once while SUBMITTED.
-- refresh_submission_after_timeout(submission, evidence) — designated worker can refresh unresolved work after the review deadline, subject to the revision cap.
-- adjudicate() — validators assess the fixed rubric against submitted text.
-- appeal(reason, additional_evidence) — one permitted appeal by the party allowed for the verdict.
-- finalize_decision() — settles after the appeal window.
-- claim_payout() — sends the claimable escrow to the recorded recipient and marks transfer pending.
-- confirm_payout() — recipient attests receipt after checking the external child transaction; this is not an on-chain proof of EOA receipt.
+`get_state`, `fund_escrow`, `submit_work`, `revise_submission`, `adjudicate`, `appeal`, `claim_payout`, `claim_refund`, `cancel`, `propose_mutual_settlement`, and `accept_mutual_settlement`.
 
-## Limits
+Their arguments, caller requirements, and workflow are documented in [fresh-cleartask/README.md](fresh-cleartask/README.md).
 
-This is a Studio Dev demonstration, not a production-funds deployment. No settlement or payout transaction is claimed in this repository.
+## Validation and deployment status
 
+GenVM lint passed, and schema validation recognized the constructor and all 11 public methods. The fresh build has **not yet been deployed** on Studio Next Dev. No address or successful transaction is claimed for this version.
+
+The Studio session currently available to Codex is connected to a different wallet with less than 0.001 GEN; the Chrome wallet session is unavailable here. Deployment and a successful contract-call receipt still need to be completed with the funded client wallet.
+
+## Evaluation checklist
+
+- C1 — Public source repository: source is available in the repository branch and pull request linked above.
+- C2 — README covers purpose, deployment, constructor inputs, and public methods: documented in [fresh-cleartask/README.md](fresh-cleartask/README.md).
+- C3 — Successful Studio Next Dev deployment and address: pending.
+- C4 — Successful contract-call transaction details: pending.
+
+Files under `outputs/` and `docs/` describe earlier contract work and are retained as historical material; they are not part of this fresh build.
